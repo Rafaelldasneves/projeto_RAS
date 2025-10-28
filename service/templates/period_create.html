@@ -1,0 +1,133 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="col">
+    <h1>Novo Período de RAS</h1>
+
+    <form method="post" class="form">
+        {% csrf_token %}
+
+        {% if form.errors %}
+        <div class="alert alert-danger">
+            <strong>Erro no Período:</strong>
+            {{ form.non_field_errors }}
+        </div>
+        {% endif %}
+
+        <h4>Dados do Período</h4>
+        <div class="card p-3 mb-4">
+            {{ form.as_p }}
+        </div>
+
+        <h4>Dias e Vagas</h4>
+
+        {# === 1. TEMPLATE DO FORMULÁRIO VAZIO === #}
+        <template id="empty-form-template">
+            <tr class="plantao-form">
+                {% for field in formset.empty_form %}
+                {% if field.name == 'DELETE' %}
+                {{ field.as_hidden }}
+                <td class="text-center">
+                    <button type="button" class="btn btn-sm btn-danger remove-plantao" title="Remover Plantão">
+                        <i class="bi bi-trash"></i>
+                    </button>
+                </td>
+                {% elif field.name == 'id' %}
+                {{ field }}
+                {% elif field.is_hidden %}
+                {{ field }}
+                {% else %}
+                <td>
+                    {{ field.errors }}
+                    {{ field }}
+                </td>
+                {% endif %}
+                {% endfor %}
+            </tr>
+        </template>
+
+        <div id="plantao-formset-container">
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>Data</th>
+                        <th>Início</th>
+                        <th>Fim</th>
+                        <th>Vagas</th>
+                        <th>Ação</th>
+                    </tr>
+                </thead>
+
+                <tbody id="plantao-formset-body">
+                    {% for form in formset %}
+                    <tr class="plantao-form">
+                        <td>{{ form.date.errors }}{{ form.date }}</td>
+                        <td>{{ form.time_start.errors }}{{ form.time_start }}</td>
+                        <td>{{ form.time_end.errors }}{{ form.time_end }}</td>
+                        <td>{{ form.vacancies.errors }}{{ form.vacancies }}</td>
+
+                        <td class="text-center">
+                            <button type="button" class="btn btn-danger btn-sm remove-plantao" title="Remover Plantão">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                            {{ form.DELETE.as_hidden }}
+                        </td>
+
+                        {% for hidden in form.hidden_fields %}
+                        {{ hidden }}
+                        {% endfor %}
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {{ formset.management_form }}
+        </div>
+        <div class="d-flex flex-shrink-0 align-items-center">
+            <button type="button" id="add-plantao" class="btn btn-outline-success btn-sm me-4">Adicionar RAS</button>
+            <button type="submit" class="btn btn-outline-primary btn-sm me-4">Salvar</button>
+            <a href="{% url 'period_list' %}" class="btn btn-outline-danger btn-sm me-4">Cancelar</a>
+        </div>
+    </form>
+</div>
+
+<script>
+    const prefix = '{{ formset.prefix }}';
+    const addPlantaoBtn = document.getElementById('add-plantao');
+    const formsetBody = document.getElementById('plantao-formset-body');
+    const totalForms = document.getElementById('id_' + prefix + '-TOTAL_FORMS');
+    const templateElement = document.getElementById('empty-form-template');
+    const templateHtml = templateElement.innerHTML;
+
+    // Adiciona novo formulário dinamicamente
+    addPlantaoBtn.addEventListener('click', () => {
+        const currentTotal = parseInt(totalForms.value);
+        const newFormHtml = templateHtml.replace(
+            new RegExp('__prefix__', 'g'),
+            currentTotal
+        );
+        formsetBody.insertAdjacentHTML('beforeend', newFormHtml);
+        totalForms.value = currentTotal + 1;
+    });
+
+    // Delegação de evento para remover formulários
+    formsetBody.addEventListener('click', (e) => {
+        if (e.target.closest('.remove-plantao')) {
+            e.preventDefault();
+            handleRemove(e);
+        }
+    });
+
+    function handleRemove(e) {
+        const row = e.target.closest('.plantao-form');
+        const deleteInput = row.querySelector('input[name$="-DELETE"]');
+
+        if (deleteInput) {
+            deleteInput.checked = true;
+            row.style.display = 'none';
+        } else {
+            row.remove();
+        }
+    }
+</script>
+
+{% endblock %}

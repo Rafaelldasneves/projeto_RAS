@@ -1,0 +1,73 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container-fluid mt-3">
+    <a href="{% url 'period_detail' service.period.pk %}" class="btn btn-outline-secondary mb-3">
+        Voltar para {{ service.period.name }}
+    </a>
+
+    <h3>Inscrições para: {{ service.date|date:"d/m/Y" }}</h3>
+    <h4>( Horário: De {{ service.time_start|time:"H:i" }} as {{ service.time_end|time:"H:i" }} )</h4>
+    
+    <div class="container-fluid mt-3">
+        <div class="py-3" style="width: 640px;">
+            <h5>Vagas Confirmadas ({{ confirmados.count }} de {{ service.vacancies }})</h5>
+            
+            {% if confirmados %}
+            <ul class="list-group py-2">
+                {% for registration in confirmados %}
+                <li class="list-group-item list-group-item-success">
+                    {{ registration.user.get_full_name|default:registration.user.username }}
+                    <span class="badge bg-secondary float-end">Inscrito: {{ registration.registration_date|date:"d/m/Y - H:i:s" }}</span>
+                </li>
+                {% endfor %}
+            </ul>
+            {% else %}
+            <p class="alert alert-info">Nenhuma vaga confirmada ainda.</p>
+            {% endif %}
+        </div>
+        
+        <div class="py-3" style="width: 640px;">
+            <h5>Lista de Reserva ({{ reservas.count }}  Agente(s) )</h5>
+            <p class="text-muted">Em ordem de inscrição.</p>
+            
+            {% if reservas %}
+            <ul class="list-group py-2">
+                {% for registration in reservas %}
+                <li class="list-group-item list-group-item-warning">
+                    {{ registration.user.get_full_name|default:registration.user.username }}
+                    <span class="badge bg-secondary float-end">Inscrito: {{ registration.registration_date|date:"d/m/Y - H:i:s"}}</span>
+                    </li>
+                {% endfor %}
+            </ul>
+            {% else %}
+            <p class="alert alert-info">A lista de reserva está vazia.</p>
+            {% endif %}
+        </div>
+
+        <div class="py-3" style="width: 640px;">
+            <h5>Cancelados ({{ cancelados.count }} Agente{{ cancelados.count|pluralize:"s" }})</h5>
+            <p class="text-muted">Histórico de cancelamento.</p>
+
+            {% if cancelados %}
+            <ul class="list-group py-2">
+                {% for registration in cancelados %}
+                <li class="list-group-item list-group-item-danger">
+                    {{ registration.user.get_full_name|default:registration.user.username }}
+                    <span class="badge bg-secondary float-end">
+                        Cancelado em: {{ registration.updated_at|date:"d/m/Y - H:i:s" }}
+                    </span>
+                </li>
+                {% endfor %}
+            </ul>
+            {% else %}
+            <p class="alert alert-info">Nenhum cancelamento registrado.</p>
+            {% endif %}
+        </div>
+
+    </div>
+</div>
+
+{% include 'components/_pagination.html' %}
+
+{% endblock %}

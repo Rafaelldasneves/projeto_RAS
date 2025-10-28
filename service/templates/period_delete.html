@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="card p-4 shadow-sm">
+        <h1 class="card-title text-danger">Confirmar Exclusão</h1>
+
+        <div class="alert alert-info alert-warning" role="alert">
+            <h5 class="alert-heading">Atenção!</h5>
+            Você tem certeza que deseja excluir o período <strong>"{{ object.name }}"</strong>  ?
+            <p class="mb-0">Esta ação é irreversível e excluirá TODOS os RAS e inscrições associadas ao período.</p>
+        </div>
+
+        <p><strong>Período:</strong> {{ object.name }}</p>
+        <p><strong>Datas:</strong> {{ object.date_start|date:"d/m/Y" }} a {{ object.date_end|date:"d/m/Y" }}</p>
+
+        <form method="post">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-outline-danger me-2">Sim, Excluir Definitivamente</button>
+            <a href="{% url 'period_list' %}" class="btn btn-outline-secondary">Cancelar</a>
+        </form>
+    </div>
+</div>
+{% endblock %}

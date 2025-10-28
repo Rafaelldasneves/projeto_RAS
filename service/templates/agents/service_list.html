@@ -1,0 +1,90 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container">
+    <div class="col-12">
+        <h2>Plantões Disponíveis para Inscrição</h2>
+        <div>
+            {% if messages %}
+            {% for message in messages %}
+            <div class="alert alert-info alert-{{ message.tags }}" role="alert">
+                {{ message|safe }}
+            </div>
+            {% endfor %}
+            {% endif %}
+        </div>
+        <div class="row">
+            {% if service_por_period %}
+
+            {% for period, services_do_period in service_por_period.items %}
+            <div class="card mt-3 col-12 my-6">
+                <div class="card border-primary my-6">
+                    <div class="card-header border-primary " style="background-color: #043988">
+                        <h4>{{ period.name }}</h4>
+                        <small class="d-block">
+                            De {{ period.date_start|date:"d/m/Y" }} até {{ period.date_end|date:"d/m/Y" }}
+                            {% if period.registration %}<br>({{ period.registration }}){% endif %}
+                        </small>
+                    </div>
+
+                    <ul class="list-group list-group-flush">
+
+                        {% for sevice in service_do_period %}
+
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+
+                            <div>
+                                <h5 class="mb-1 text-primary">Dia: {{ service.date|date:"d/m/Y" }}</h5>
+                                <p class="mb-1 text-muted">Horário: {{ service.time_start|time:"H:i" }} às {{
+                                    service.time_end|time:"H:i" }}</p>
+
+                                <span class="badge bg-secondary me-2">Total: {{ service.vacancies }} vagas</span>
+
+                                {% if service.remaining_vacancies > 0 %}
+                                <span class="badge bg-success">Vagas Livres: {{ service.remaining_vacancies }}</span>
+                                {% else %}
+                                <span class="badge bg-danger">Vagas Esgotadas (Reserva Ativa)</span>
+                                {% endif %}
+                            </div>
+
+                            <div>
+
+                                {% if service.id in service_ids_registered %}
+                                <button class="btn btn-success btn-sm disabled">Inscrito</button>
+                                <a href="{% url 'minhas_inscricoes' %}" class="btn btn-outline-info btn-sm me-4">Ver
+                                    Inscrição</a>
+
+                                {% elif service.date|date:"Ymd" < "now" |date:"Ymd" %} <button
+                                    class="btn btn-outline-info btn-sm me-4" disabled>Plantão Expirado</button>
+
+                                    {% else %}
+                                    <form method="post" action="{% url 'candidatar_plantao' plantao.pk %}"
+                                        style="display:inline;">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn btn-primary btn-sm me-4">
+                                            Candidatar-se
+                                        </button>
+
+                                    </form>
+                                    {% endif %}
+                            </div>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+
+            {% endfor %}
+
+            {% else %}
+
+            <p class="alert alert-info">Nenhum período de plantão futuro disponível no momento.</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+<br>
+{% include 'components/_pagination.html' %}
+
+{% endblock %}

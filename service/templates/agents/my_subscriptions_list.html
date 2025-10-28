@@ -1,0 +1,56 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1>Minhas Inscrições em RAS</h1>
+    <a href="{% url 'service_list' %}" class="btn btn-outline-secondary mb-3">
+        Ver Plantões Disponíveis
+    </a>
+            <div>
+                {% if messages %}
+                    {% for message in messages %}
+                        <div class="alert alert-info alert-{{ message.tags }}" role="alert">
+                            {{ message|safe }}
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            </div>
+
+    {% if registrations %}
+    <ul class="list-group">
+        {% for registration in registrations %}
+        <li class="list-group-item d-flex justify-content-between align-items-start">
+            <div>
+                <h5 class="mb-1">{{ registration.service.date|date:"d/m/Y" }} - {{ registration.service.period.name }}</h5>
+                <p class="text-muted">{{ registration.service.time_start|time:"H:i" }} às {{ registration.service.time_end|time:"H:i" }}</p>
+
+                {% if registration.status == 'CONFIRMADO' %}
+                    <span class="badge bg-success fs-6">Vaga Confirmada</span>
+                {% elif registration.status == 'RESERVA' %}
+                    <span class="badge bg-warning fs-6">Em Lista de Reserva</span>
+                {% elif registration.status == 'CANCELADO' %}
+                    <span class="badge bg-danger fs-6">Cancelada</span>
+                {% endif %}
+
+                <small class="d-block mt-2">Inscrito em: {{ registration.registration_date|date:"d/m/Y  H:i" }}</small>
+            </div>
+            
+            {% if registration.status != 'CANCELADO' %}
+            <div class="ms-auto">
+                <a href="{% url 'cancel_registration' registration.service.pk %}" class="btn btn-sm btn-outline-danger">
+                    Cancelar Inscrição
+                </a>
+            </div>
+            {% endif %}
+            
+        </li>
+        {% endfor %}
+    </ul>
+    {% else %}
+    <p class="alert alert-info">Você não possui inscrições ativas.</p>
+    {% endif %}
+</div>
+
+{% include 'components/_pagination.html' %}
+
+{% endblock %}

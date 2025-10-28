@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <a href="{% url 'period_list' %}" class="btn btn-outline-secondary mb-3">Voltar para Períodos</a>
+
+    <h1>Períod: {{ period.name }}</h1>
+    <p><strong>Descrição:</strong> {{ period.description|default:"Nenhuma" }}</p>
+    <p><strong>Vigência:</strong> {{ period.date_start|date:"d/m/Y" }} a {{ period.date_end|date:"d/m/Y" }}</p>
+
+    <h2 class="mt-4">(  {{ services.count }}  ) RAS neste Período.</h2>
+
+    {% if services %}
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th class="text-center">Data</th>
+                <th class="text-center">Horário</th>
+                <th class="text-center">Vagas Totais</th>
+                <th class="text-center">Vagas Restantes</th>
+                <th class="text-center">Ações</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for service in services %}
+            <tr>
+                <td class="text-center">{{ service.date|date:"d/m/Y" }}</td>
+                <td class="text-center">{{ service.time_start|time:"H:i" }} - {{ service.time_end|time:"H:i" }}</td>
+                <td class="text-center">{{ service.vacancies }}</td>
+                <td class="text-center">
+                    {% if service.remaining_vacancies > 0 %}
+                    <span class="badge bg-success text-center">{{ service.remaining_vacancies }}</span>
+                    {% else %}
+                    <span class="badge bg-danger text-center">Esgotado</span>
+                    {% endif %}
+                </td>
+                <td class="text-center">
+                    <a href="{% url 'registrations_list' service.pk %}" class="btn btn-outline-info btn-sm text-center">
+                        Ver Inscrições ({{ service.occupied_vacancies }} confirmados)
+                    </a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p class="alert alert-warning">Nenhum plantão cadastrado neste período.</p>
+    {% endif %}
+</div>
+{% endblock content %}

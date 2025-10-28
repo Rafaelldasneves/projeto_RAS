@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="container mt-5">
+    <div class="card p-4 shadow-sm">
+        <h1 class="card-title text-danger">Confirmar Cancelamento</h1>
+
+        <div class="alert alert-warning" role="alert">
+            <h5 class="alert-heading">Atenção!</h5>
+            Você tem certeza que deseja cancelar sua inscrição para o RAS do dia: <strong>{{ service.date|date:"d/m/Y" }}</strong> de <strong>{{ service.time_start|time:"H:i" }} às {{ service.time_end|time:"H:i" }}</strong>?
+             <p class="mb-0">Esta ação é irreversível.</p>
+        </div>
+
+        <form method="post">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-danger me-2">Sim, Cancelar Definitivamente</button>
+            <a href="{% url 'my_subscriptions' %}" class="btn btn-secondary">Cancelar</a>
+        </form>
+    </div>
+</div>
+{% include 'components/_pagination.html' %}
+
+{% endblock %}

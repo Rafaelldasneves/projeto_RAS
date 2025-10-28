@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1>Períodos de RAS</h1>
+    <a href="{% url 'period_create' %}" class="btn btn-outline-primary mb-3">
+        + Novo Período
+    </a>
+
+    {% if messages %}
+    {% for message in messages %}
+    <div class="alert alert-info alert-{{ message.tags }} fade show alert-heading" role="alert">{{ message }}
+    </div>
+    {% endfor %}
+    {% endif %}
+
+    {% if periods %}
+    <div class="list-group">
+        {% for period in periods %}
+
+        <div class="list-group-item d-flex justify-content-between align-items-center mt-3 border">
+
+            <div class="">
+                <div class="d-flex w-100 justify-content-between">
+                    <h5 class="mb-1">{{ period.name }}</h5>
+                </div>
+                <p class="mb-1">De {{ period.date_start|date:"d/m/Y" }} à {{ period.date_end|date:"d/m/Y" }}</p>
+                <small class="text-primary bg-dark">RAS associados: {{ period.plantoes.count }}</small>
+            </div>
+
+            <div class="d-flex flex-shrink-0 align-items-center">
+
+                <a href="{% url 'period_detail' period.pk %}" class="btn btn-outline-info btn-sm me-4"
+                    title="Editar Período">Detalhe</a>
+
+                <a href="{% url 'period_update' period.pk %}" class="btn btn-outline-info btn-sm me-4"
+                    title="Editar Período">Editar</a>
+
+                <a href="{% url 'period_delete' period.pk %}" class="btn btn-outline-danger btn-sm me-4"
+                    title="Excluir Período">Deletar</a>
+            </div>
+
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <p class="alert alert-info">Nenhum período cadastrado.</p>
+    {% endif %}
+
+</div>
+
+{% include 'components/_pagination.html' %}
+
+{% endblock %}

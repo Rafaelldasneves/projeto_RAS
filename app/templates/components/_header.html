@@ -1,0 +1,106 @@
+{% load static %}
+
+<!-- ============================
+ Cabeçalho fixo e responsivo
+============================= -->
+<header class="container-fluid fixed-top" style="background-color: #043988;">
+  <div class="row align-items-center g-0 py-2" style="display: flex; justify-content: space-between; align-items: center;">
+    <!-- Logo esquerda -->
+    <div class="col-3 col-md-2 text-center">
+      <img src="{% static 'img/Logo_GCM.png' %}" class="logo img-fluid" alt="GCM">
+    </div>
+
+    <!-- Título central -->
+    <div class="col-6 col-md-8 text-center text-white header-title">
+      <h5 class="mb-1 d-md-none">SISTEMA DE GERENCIAMENTO DE RAS</h5>
+      <h3 class="mb-0 d-none d-md-block">SISTEMA DE GERENCIAMENTO DE - RAS -</h3>
+      <h6 class="d-none d-md-block">(REGIME ADICIONAL DE SERVIÇO)</h6>
+    </div>
+
+    <!-- Logo direita -->
+    <div class="col-3 col-md-2 text-center">
+      <img src="{% static 'img/Logo_GPCM.png' %}" class="logo img-fluid" alt="GPCM">
+    </div>
+  </div>
+
+  {% if user.is_authenticated %}
+  <!-- ============================
+        Navbar responsiva
+  ============================ -->
+  <nav class="navbar navbar-expand-md navbar-dark bg-primary">
+    <div class="container-fluid">
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarRAS"
+        aria-controls="navbarRAS" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+
+      <div class="collapse navbar-collapse" id="navbarRAS">
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+          <li class="nav-item">
+            <a class="nav-link btn btn-dark mx-1" href="{% url 'home' %}">Início</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link btn btn-dark mx-1" href="{% url 'service_list' %}">Marcação</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link btn btn-dark mx-1" href="{% url 'my_subscriptions' %}">Minhas Marcações</a>
+          </li>
+
+          {% if perms.service.add_period and perms.service.add_service and perms.service.view_period %}
+          <li class="nav-item">
+            <a class="nav-link btn btn-dark mx-1" href="{% url 'period_list' %}">Gestor</a>
+          </li>
+          {% endif %}
+        </ul>
+
+        <form action="{% url 'logout' %}" method="post" class="d-flex">
+          {% csrf_token %}
+          <button type="submit" class="btn btn-dark">Sair</button>
+        </form>
+      </div>
+    </div>
+  </nav>
+  {% endif %}
+</header>
+
+<style>
+  /* Logos */
+  .logo {
+    max-height: 90px;
+    width: auto;
+    transition: all 0.3s ease-in-out;
+  }
+
+  /* Quando a tela for pequena */
+  @media (max-width: 767.98px) {
+    .header-content {
+      flex-wrap: nowrap;
+      text-align: center;
+    }
+
+    .logo {
+      max-height: 60px;
+    }
+
+    .header-title h5 {
+      font-size: 1rem;
+      line-height: 1.2;
+    }
+
+    .navbar .btn {
+      font-size: 0.9rem;
+      padding: 6px 10px;
+    }
+  }
+
+  /* Em telas muito pequenas (ex: celular em pé) */
+  @media (max-width: 480px) {
+    .logo {
+      max-height: 50px;
+    }
+
+    .header-title h5 {
+      font-size: 0.9rem;
+    }
+  }
+</style>
