@@ -9,15 +9,16 @@ services:
             - sgras_db
 
     sgras_db:
-        image: postgres:15
+        image: mysql:8.0
         ports:
-            - 5432:5432
+            - 3306:3306
         volumes:
-            - postgres_data:/var/lib/postgresql/data/
+            - mysql_data:/var/lib/mysql
         environment:
-            - POSTGRES_USER=postgres
-            - POSTGRES_PASSWORD=postgres
-            - POSTGRES_DB=sgras
+            - MYSQL_ROOT_PASSWORD: root
+            - MYSQL_DATABASE: sgras
+            - MYSQL_USER: sql
+            - MYSQL_PASSWORD: sql
 
 volumes:
-    postgres_data:
+    mysql_data:
