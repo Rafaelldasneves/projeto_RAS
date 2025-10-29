@@ -67,15 +67,6 @@ LOGOUT_REDIRECT_URL = '/login/'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'sgras',
-        'USER': 'sql',
-        'PASSWORD': 'sql',
-        'HOST': 'localhost',
-        'PORT': '3306',
-    },
-    
-    'dev': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': BASE_DIR / 'db.sqlite3',
     }
