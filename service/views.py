@@ -149,7 +149,7 @@ class PeriodDeleteView(LoginRequiredMixin, PermissionRequiredMixin, DeleteView):
 class ServiceListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
     model = Service
     paginate_by = 10
-    template_name = 'agents/Service_available_list.html'
+    template_name = 'agents/service_available_list.html'
     permission_required = 'service.view_service'
 
     def get_queryset(self):
