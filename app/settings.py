@@ -71,7 +71,7 @@ DATABASES = {
         'NAME': 'sgras',
         'USER': 'sql',
         'PASSWORD': 'sql',
-        'HOST': 'sgras_db',
+        'HOST': 'localhost',
         'PORT': '3306',
     },
     
