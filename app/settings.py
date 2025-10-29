@@ -1,5 +1,4 @@
 from pathlib import Path
-import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -14,7 +13,7 @@ SECRET_KEY = 'django-insecure-tb7!m*1)klz)0k5c*e5dr147$8k+l2#(+wut25q#qpukhay-sg
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['rafaelneves.pythonanywhere.com', '*']
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -68,6 +67,15 @@ LOGOUT_REDIRECT_URL = '/login/'
 
 DATABASES = {
     'default': {
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': 'sgras',
+        'USER': 'postgres',
+        'PASSWORD': 'postgres',
+        'HOST': 'sgras_db',
+        'PORT': '5432',
+    },
+    
+    'dev': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': BASE_DIR / 'db.sqlite3',
     }
@@ -110,7 +118,9 @@ USE_TZ = True
 
 STATIC_URL = "static/"
 
-STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+STATICFILES_DIRS = [
+    BASE_DIR / "static",
+]
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
