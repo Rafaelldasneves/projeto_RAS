@@ -67,12 +67,12 @@ LOGOUT_REDIRECT_URL = '/login/'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'ENGINE': 'django.db.backends.mysql',
         'NAME': 'sgras',
-        'USER': 'postgres',
-        'PASSWORD': 'postgres',
+        'USER': 'sql',
+        'PASSWORD': 'sql',
         'HOST': 'sgras_db',
-        'PORT': '5432',
+        'PORT': '3306',
     },
     
     'dev': {
