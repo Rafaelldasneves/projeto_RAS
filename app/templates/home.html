@@ -15,14 +15,19 @@
     <div class="accordion" id="accordionPeriods">
 
       {% for period, services in grouped_services.items %}
-        <div class="accordion-item mb-2">
-          <h2 class="accordion-header" id="heading{{ forloop.counter }}">
+
+        <div class="accordion-item border mb-3">
+          <div class="d-flex justify-content-end">
+            <a href="{% url 'exportar_pdf' %}?period_id={{ period.id }}&tipo=todos" 
+            class="btn btn-sm btn-outline-danger justify-content-end mb-1" target="_blank">Exportar PDF</a>
+          </div>
+          <h1 class="accordion-header" id="heading{{ forloop.counter }}">
             <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
                     data-bs-target="#collapse{{ forloop.counter }}" aria-expanded="false"
                     aria-controls="collapse{{ forloop.counter }}">
               {{ period.name }} --  <strong> ( {{ period.date_start|date:"d/m/Y"}} à {{period.date_end|date:"d/m/Y"}}) </strong>
             </button>
-          </h2>
+          </h1>
 
           <div id="collapse{{ forloop.counter }}" class="accordion-collapse collapse"
                aria-labelledby="heading{{ forloop.counter }}" data-bs-parent="#accordionPeriods">

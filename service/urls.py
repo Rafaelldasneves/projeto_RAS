@@ -13,4 +13,5 @@ urlpatterns = [
     path('agents/<int:pk>/apply', views.apply_plantation, name='apply_plantation'),
     path('agents/my_subscriptions', views.MySubscriptionsListView.as_view(), name='my_subscriptions'),
     path('agents/<int:pk>/cancel_registration', views.cancel_registration_service, name='cancel_registration'),
+    path('exportar-pdf/', views.exportar_pdf, name='exportar_pdf'),
 ]

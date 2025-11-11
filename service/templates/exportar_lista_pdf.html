@@ -1,0 +1,191 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <title>Lista de Inscritos - {{ period.name }}</title>
+  <style>
+    @page {
+      size: A4;
+      margin: 1.6cm;
+      margin-top: 1.0cm;
+      @top-left {
+        content: " ";
+      }
+      @top-center {
+        content: element(header);
+      }
+      @bottom-center {
+        content: element(footer);
+      }
+    }
+
+    /* Cabeçalho e rodapé dinâmicos */
+    header {
+      display: flex;
+      align-items: center;        /* alinha verticalmente */
+      justify-content: center;    /* centraliza o texto */
+      position: relative;         /* referência para o posicionamento da logo */
+      border-bottom: 2px solid #444;
+      padding: 10px 0;
+      margin-bottom: 20px;
+  
+    }
+
+    footer {
+      position: running(footer);
+      text-align: center;
+      border-top: 1px solid #ccc;
+      font-size: 10px;
+      color: #555;
+      padding-top: 5px;
+    }
+
+    body {
+      font-family: "DejaVu Sans", Arial, sans-serif;
+      font-size: 12px;
+      color: #333;
+    }
+
+    h2, h3, h4 {
+      color: #222;
+      margin-bottom: 6px;
+    }
+
+    h2 {
+      margin-top: 0;
+    }
+
+    h3 {
+      border-bottom: 2px solid #333;
+      padding-bottom: 4px;
+      margin-top: 25px;
+    }
+
+    .service-block {
+      border: 1px solid #999;
+      border-radius: 5px;
+      padding: 10px;
+      margin: 10px 0;
+      page-break-inside: avoid;
+    }
+
+    .confirmed {
+      background-color: #d4edda;
+      padding: 4px;
+      border-radius: 3px;
+    }
+
+    .reserved {
+      background-color: #fff3cd;
+      padding: 4px;
+      border-radius: 3px;
+    }
+
+    ul {
+      margin: 5px 0 10px 20px;
+      padding: 0;
+    }
+
+    li {
+      margin-bottom: 3px;
+    }
+
+.header-logo {
+    position: absolute;
+    left: 10px;          /* define uma margem da esquerda (ajuste se quiser mais perto) */
+    top: 10%;            /* centraliza verticalmente */
+    transform: translateY(-50%); /* mantém a logo no meio vertical */
+    width: 50px;         /* ajuste conforme tamanho da imagem */
+    height: auto;
+  }
+
+  .header-title {
+    font-size: 20px;
+    font-weight: bold;
+    text-align: center;
+  }
+
+    .page-number:before {
+      content: "Página " counter(page) " de " counter(pages);
+    }
+  </style>
+</head>
+
+<body>
+  <!-- Cabeçalho -->
+  <header>
+    <img src="{% static 'img/Logo_GCM.png' %}" class="header-logo">
+    <span class="header-title">Relatório de Inscrições - {{ period.name }}</span>
+  </header>
+
+  <!-- Corpo -->
+  <main>
+    <p><strong>Período:</strong> {{ period.date_start|date:"d/m/Y" }} a {{ period.date_end|date:"d/m/Y" }}</p>
+    <p> <!-- <strong>Filtro aplicado:</strong> -->
+      {% if tipo == "confirmados" %}
+        Somente Confirmados
+      {% elif tipo == "reservas" %}
+        Somente Reservas
+      {% else %}
+        Todos os Inscritos
+      {% endif %}
+    </p>
+
+    {% for period, services in grouped_services.items %}
+      {% for service in services %}
+        <div class="service-block">
+          <strong>
+            {{ service.date|date:"d/m/Y" }}
+            ({{ service.time_start|time:"H:i" }} - {{ service.time_end|time:"H:i" }})
+          </strong><br>
+          Vagas: {{ service.vacancies }} |
+          Confirmadas: {{ service.occupied_vacancies }} |
+          Restantes: {{ service.remaining_vacancies }}
+
+          {% if tipo == "todos" or tipo == "confirmados" %}
+            <h4>Confirmados ({{ service.confirmados|length }})</h4>
+            {% if service.confirmados %}
+              <ul>
+                {% for reg in service.confirmados %}
+                  <li class="confirmed">
+                    {{ reg.user.get_full_name|default:reg.user.username }}
+                    — {{ reg.registration_date|date:"d/m/Y H:i" }}
+                  </li>
+                {% endfor %}
+              </ul>
+            {% else %}
+              <p>Nenhum confirmado.</p>
+            {% endif %}
+          {% endif %}
+
+          {% if tipo == "todos" or tipo == "reservas" %}
+            <h4>Reservas ({{ service.reservas|length }})</h4>
+            {% if service.reservas %}
+              <ul>
+                {% for reg in service.reservas %}
+                  <li class="reserved">
+                    {{ reg.user.get_full_name|default:reg.user.username }}
+                    — {{ reg.registration_date|date:"d/m/Y H:i" }}
+                  </li>
+                {% endfor %}
+              </ul>
+            {% else %}
+              <p>Nenhuma reserva.</p>
+            {% endif %}
+          {% endif %}
+        </div>
+      {% empty %}
+        <p>Nenhum serviço encontrado neste período.</p>
+      {% endfor %}
+    {% endfor %}
+  </main>
+
+  <!-- Rodapé -->
+  <footer>
+    <span class="page-number"></span>
+    &nbsp;|&nbsp;
+    Gerado em {{ now|date:"d/m/Y H:i" }}
+  </footer>
+</body>
+</html>

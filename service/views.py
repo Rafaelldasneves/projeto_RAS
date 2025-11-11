@@ -11,6 +11,12 @@ from .forms import PeriodForm, ServiceInlineFormSet, ServiceForm
 from .models import Period, Service, RegistrationService
 from django.utils import timezone
 
+from django.http import HttpResponse
+from django.template.loader import get_template
+from weasyprint import HTML
+import tempfile
+from .models import RegistrationService  # ajuste o caminho conforme seu app
+
 
 @permission_required('service.add_period', login_url='login')
 def PeriodCreate(request):
@@ -288,3 +294,94 @@ class MySubscriptionsListView(LoginRequiredMixin, PermissionRequiredMixin, ListV
 
     def get_queryset(self):
         return RegistrationService.objects.filter(user=self.request.user).order_by('service__date')
+
+from django.utils import timezone
+from django.db.models import Prefetch
+
+from django.http import HttpResponse
+from django.template.loader import get_template
+from django.utils import timezone
+from django.contrib.auth.decorators import login_required
+from django.db.models import Prefetch
+from io import BytesIO
+from weasyprint import HTML
+from .models import Period, Service, RegistrationService
+
+from django.http import HttpResponse
+from django.template.loader import get_template
+from django.utils import timezone
+from django.contrib.auth.decorators import login_required
+from django.db.models import Prefetch
+from io import BytesIO
+from weasyprint import HTML
+from .models import Period, Service, RegistrationService
+
+from django.http import HttpResponse
+from django.template.loader import get_template
+from django.utils import timezone
+from django.contrib.auth.decorators import login_required
+from django.db.models import Prefetch
+from io import BytesIO
+from weasyprint import HTML
+from .models import Period, Service, RegistrationService
+
+@login_required
+def exportar_pdf(request):
+    period_id = request.GET.get('period_id')
+    tipo = request.GET.get('tipo', 'todos')
+
+    # Garantir que o período foi selecionado
+    if not period_id:
+        return HttpResponse("Nenhum período selecionado para exportação.", status=400)
+
+    period = Period.objects.filter(id=period_id).first()
+    if not period:
+        return HttpResponse("Período não encontrado.", status=404)
+
+    # Prefetch dos serviços e inscrições
+    services_prefetch = Prefetch(
+        'plantoes',
+        queryset=Service.objects.prefetch_related(
+            Prefetch(
+                'registrations',
+                queryset=RegistrationService.objects.all(),
+                to_attr='all_regs'
+            )
+        )
+    )
+
+    # Só o período selecionado
+    period = Period.objects.filter(id=period_id).prefetch_related(services_prefetch).first()
+
+    # Agrupa services e filtra confirmados/reservas
+    grouped_services = {}
+    grouped_services[period] = []
+    for service in period.plantoes.all():
+        if tipo == 'confirmados':
+            service.confirmados = [r for r in service.all_regs if r.status == 'CONFIRMADO']
+            service.reservas = []
+        elif tipo == 'reservas':
+            service.confirmados = []
+            service.reservas = [r for r in service.all_regs if r.status == 'RESERVA']
+        else:
+            service.confirmados = [r for r in service.all_regs if r.status == 'CONFIRMADO']
+            service.reservas = [r for r in service.all_regs if r.status == 'RESERVA']
+        grouped_services[period].append(service)
+
+    # Renderiza o template
+    template = get_template('exportar_lista_pdf.html')
+    html_content = template.render({
+        'grouped_services': grouped_services,
+        'tipo': tipo,
+        'now': timezone.now(),
+        'period': period,  # para cabeçalho
+    })
+
+    # Gera PDF na memória (sem erros de permissão)
+    pdf_file = BytesIO()
+    HTML(string=html_content, base_url=request.build_absolute_uri()).write_pdf(pdf_file)
+    pdf_file.seek(0)
+
+    response = HttpResponse(pdf_file.read(), content_type='application/pdf')
+    response['Content-Disposition'] = f'inline; filename="ras_{period.name}.pdf"'
+    return response
