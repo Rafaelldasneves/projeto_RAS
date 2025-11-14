@@ -23,9 +23,9 @@
     /* Cabeçalho e rodapé dinâmicos */
     header {
       display: flex;
-      align-items: center;        /* alinha verticalmente */
-      justify-content: center;    /* centraliza o texto */
-      position: relative;         /* referência para o posicionamento da logo */
+      align-items: center;
+      justify-content: center;
+      position: relative;
       border-bottom: 2px solid #444;
       padding: 10px 0;
       margin-bottom: 20px;
@@ -93,10 +93,10 @@
 
 .header-logo {
     position: absolute;
-    left: 10px;          /* define uma margem da esquerda (ajuste se quiser mais perto) */
-    top: 10%;            /* centraliza verticalmente */
-    transform: translateY(-50%); /* mantém a logo no meio vertical */
-    width: 50px;         /* ajuste conforme tamanho da imagem */
+    left: 10px;
+    top: 10%;
+    transform: translateY(-50%);
+    width: 50px;
     height: auto;
   }
 
@@ -113,13 +113,11 @@
 </head>
 
 <body>
-  <!-- Cabeçalho -->
   <header>
     <img src="{% static 'img/Logo_GCM.png' %}" class="header-logo">
     <span class="header-title">Relatório de Inscrições - {{ period.name }}</span>
   </header>
 
-  <!-- Corpo -->
   <main>
     <p><strong>Período:</strong> {{ period.date_start|date:"d/m/Y" }} a {{ period.date_end|date:"d/m/Y" }}</p>
     <p> <!-- <strong>Filtro aplicado:</strong> -->
@@ -181,7 +179,6 @@
     {% endfor %}
   </main>
 
-  <!-- Rodapé -->
   <footer>
     <span class="page-number"></span>
     &nbsp;|&nbsp;
