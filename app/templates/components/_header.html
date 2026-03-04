@@ -1,10 +1,10 @@
 {% load static %}
 
-<!-- ============================
- Cabeçalho fixo e responsivo
-============================= -->
+ <!-- Cabeçalho fixo e responsivo -->
+
 <header class="container-fluid fixed-top" style="background-color: #043988;">
   <div class="row align-items-center g-0 py-2" style="display: flex; justify-content: space-between; align-items: center;">
+
     <!-- Logo esquerda -->
     <div class="col-3 col-md-2 text-center">
       <img src="{% static 'img/Logo_GCM.png' %}" class="logo img-fluid" alt="GCM">
@@ -24,9 +24,7 @@
   </div>
 
   {% if user.is_authenticated %}
-  <!-- ============================
-        Navbar responsiva
-  ============================ -->
+    <!-- Navbar responsiva -->
   <nav class="navbar navbar-expand-md navbar-dark bg-primary">
     <div class="container-fluid">
       <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarRAS"

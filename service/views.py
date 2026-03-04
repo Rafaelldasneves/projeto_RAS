@@ -4,18 +4,18 @@ from django.views.generic import ListView, DetailView, UpdateView, DeleteView, C
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.db import transaction, IntegrityError
+from django.db.models import Prefetch
+from io import BytesIO
+from django.utils import timezone
+from django.http import HttpResponse
+from django.template.loader import get_template
+from weasyprint import HTML
+from .models import Period, Service, RegistrationService
 from django.urls import reverse_lazy
 from django.forms import inlineformset_factory
 from django import forms
 from .forms import PeriodForm, ServiceInlineFormSet, ServiceForm
-from .models import Period, Service, RegistrationService
-from django.utils import timezone
-
-from django.http import HttpResponse
-from django.template.loader import get_template
-from weasyprint import HTML
 import tempfile
-from .models import RegistrationService  # ajuste o caminho conforme seu app
 
 
 @permission_required('service.add_period', login_url='login')
@@ -294,36 +294,6 @@ class MySubscriptionsListView(LoginRequiredMixin, PermissionRequiredMixin, ListV
 
     def get_queryset(self):
         return RegistrationService.objects.filter(user=self.request.user).order_by('service__date')
-
-from django.utils import timezone
-from django.db.models import Prefetch
-
-from django.http import HttpResponse
-from django.template.loader import get_template
-from django.utils import timezone
-from django.contrib.auth.decorators import login_required
-from django.db.models import Prefetch
-from io import BytesIO
-from weasyprint import HTML
-from .models import Period, Service, RegistrationService
-
-from django.http import HttpResponse
-from django.template.loader import get_template
-from django.utils import timezone
-from django.contrib.auth.decorators import login_required
-from django.db.models import Prefetch
-from io import BytesIO
-from weasyprint import HTML
-from .models import Period, Service, RegistrationService
-
-from django.http import HttpResponse
-from django.template.loader import get_template
-from django.utils import timezone
-from django.contrib.auth.decorators import login_required
-from django.db.models import Prefetch
-from io import BytesIO
-from weasyprint import HTML
-from .models import Period, Service, RegistrationService
 
 @login_required
 def exportar_pdf(request):

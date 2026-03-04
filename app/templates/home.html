@@ -47,7 +47,6 @@
                         Restantes: {{ service.remaining_vacancies }}
                       </p>
 
-                      <!-- Confirmados -->
                       <h5>Confirmados (  {{ service.confirmados.count }}  )</h5>
                       {% if service.confirmados %}
                         <ul class="list-group mb-3">
@@ -62,7 +61,6 @@
                         <p class="text-muted">Nenhum confirmado.</p>
                       {% endif %}
 
-                      <!-- Reservas -->
                       <h5>Reservas: <!--( {{ reservation_limit }} ) --> </h5>
                       {% if service.reservas %}
                         <ul class="list-group">
