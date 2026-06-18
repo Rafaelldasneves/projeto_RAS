@@ -365,3 +365,60 @@ def relatorio_pdf_view(request):
 
     # GET: mostrar formulário
     return render(request, 'relatorio_form.html')
+
+
+@permission_required('service.view_period', login_url='login')
+def assinaturas_pdf(request):
+    period_id = request.GET.get('period_id')
+    tipo = request.GET.get('tipo', 'todos')
+
+    # Garantir que o período foi selecionado
+    if not period_id:
+        return HttpResponse("Nenhum período selecionado para exportação.", status=400)
+
+    period = Period.objects.filter(id=period_id).first()
+    if not period:
+        return HttpResponse("Período não encontrado.", status=404)
+
+    # Prefetch dos serviços e inscrições
+    services_prefetch = Prefetch(
+        'plantoes',
+        queryset=Service.objects.prefetch_related(
+            Prefetch(
+                'registrations',
+                queryset=RegistrationService.objects.all(),
+                to_attr='all_regs'
+            )
+        )
+    )
+    # Só o período selecionado
+    period = Period.objects.filter(id=period_id).prefetch_related(services_prefetch).first()
+
+    # Agrupa services e filtra confirmados/reservas
+    grouped_services = {}
+    grouped_services[period] = []
+    for service in period.plantoes.all():
+        if tipo == 'confirmados':
+            service.confirmados = [r for r in service.all_regs if r.status == 'CONFIRMADO']
+            service.reservas = []
+        else:
+            service.confirmados = [r for r in service.all_regs if r.status == 'CONFIRMADO']
+        grouped_services[period].append(service)
+
+    # Renderiza o template
+    template = get_template('assinaturas_pdf.html')
+    html_content = template.render({
+        'grouped_services': grouped_services,
+        'tipo': tipo,
+        'now': timezone.now(),
+        'period': period,  # para cabeçalho
+    })
+
+    # Gera PDF na memória (sem erros de permissão)
+    pdf_file = BytesIO()
+    HTML(string=html_content, base_url=request.build_absolute_uri()).write_pdf(pdf_file)
+    pdf_file.seek(0)
+
+    response = HttpResponse(pdf_file.read(), content_type='application/pdf')
+    response['Content-Disposition'] = f'inline; filename="ras_{period.name}.pdf"'
+    return response

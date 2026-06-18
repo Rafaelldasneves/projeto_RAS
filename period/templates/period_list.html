@@ -38,6 +38,9 @@
 
                 <a href="{% url 'period_delete' period.pk %}" class="btn btn-outline-danger btn-sm me-4"
                     title="Excluir Período">Deletar</a>
+                
+                <a href="{% url 'assinaturas_pdf' %}?period_id={{ period.id }}&tipo=todos" 
+                class="btn btn-outline-primary btn-sm me-4" target="_blank">Exportar PDF</a>
             </div>
 
         </div>

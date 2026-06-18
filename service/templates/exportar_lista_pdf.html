@@ -10,7 +10,7 @@
 /* ===================== PÁGINA ===================== */
 @page {
     size: A4;
-    margin: 3cm 2cm 2.5cm 2cm;
+    margin: 1cm 2cm 2.5cm 2cm;
 
     @bottom-center {
         content: element(footer);
@@ -28,12 +28,12 @@ body {
 /* ===================== CABEÇALHO ===================== */
 .topo {
     text-align: center;
-    margin-bottom: 20px;
+    margin-bottom: 10px;
 }
 
 .logo {
     width: 70px;
-    margin-bottom: 8px;
+    margin-bottom: 2px;
 }
 
 .orgao {
@@ -43,25 +43,28 @@ body {
 }
 
 .titulo {
-    font-size: 15px;
+    font-size: 16px;
     font-weight: bold;
-    margin-top: 5px;
+    margin-top: 20px;
 }
 
 .subtitulo {
-    font-size: 12px;
+    font-size: 16px;
+    font-weight: bold;
+    text-decoration: underline;
     margin-top: 2px;
 }
 
 /* ===================== SEÇÃO ===================== */
 .service {
-    margin-bottom: 18px;
+    margin-bottom: 20px;
     page-break-inside: avoid;
 }
 
 .service-title {
+    font-size: 14px;
     font-weight: bold;
-    margin-bottom: 6px;
+    margin-bottom: 2px;
 }
 
 /* ===================== TABELAS ===================== */
@@ -69,8 +72,8 @@ table {
     width: 100%;
     border-collapse: collapse;
     table-layout: fixed;
-    margin-bottom: 12px;
-    font-size: 11px;
+    margin-bottom: 10px;
+    font-size: 12px;
 }
 
 th, td {
@@ -87,7 +90,6 @@ th {
 .col-nome { width: 40%; }
 .col-matricula { width: 15%; text-align: center; }
 .col-data { width: 25%; text-align: center; }
-.col-assinatura { width: 20%; }
 
 /* TEXTOS */
 .bloco-titulo {
@@ -118,23 +120,32 @@ footer {
 </head>
 
 <body>
+<!-- ===================== FOOTER ===================== -->
+<footer>
+    <span class="page-number"></span>
+    &nbsp;|&nbsp;
+    Documento gerado em {{ now|date:"d/m/Y H:i:s" }}
+</footer>
 
 <!-- ===================== CABEÇALHO ===================== -->
 <div class="topo">
     <img src="{% static 'img/Logo_GCM.png' %}" class="logo">
 
     <div class="orgao">
-        SECRETARIA MUNICIPAL DE SEGURANÇA PÚBLICA
+        PREFEITURA MUNICIPAL DE CASIMIRO DE ABREU - RJ        
     </div>
-
+    <div class="orgao">
+        SECRETARIA DE SEGURANÇA PÚBLICA
+    </div>
+    <div class="orgao">
+        GUARDA CIVIL MUNICIPAL
+    </div>
     <div class="titulo">
-        RELATÓRIO DE INSCRIÇÕES EM SERVIÇOS
+        EXTRATO DE INSCRIÇÕES
     </div>
-
     <div class="subtitulo">
         {{ period.name }}
     </div>
-
     <div class="subtitulo">
         Período: {{ period.date_start|date:"d/m/Y" }} a {{ period.date_end|date:"d/m/Y" }}
     </div>
@@ -146,19 +157,19 @@ footer {
     <div class="service">
 
         <div class="service-title">
-            Serviço: {{ service.date|date:"d/m/Y" }}
-            ({{ service.time_start|time:"H:i" }} às {{ service.time_end|time:"H:i" }})
+            DIA: {{ service.date|date:"d/m/Y" }}
+            ({{ service.time_start|time:"H:i" }} às {{ service.time_end|time:"H:i"}})
             | Vagas: {{ service.vacancies }}
         </div>
 
         <!-- CONFIRMADOS -->
-        <div class="bloco-titulo">Inscrições Confirmadas</div>
+        <div class="bloco-titulo">Lista de Titulares</div>
         <table>
             <thead>
                 <tr>
                     <th class="col-nome">Nome de Guerra</th>
                     <th class="col-matricula">Matrícula</th>
-                    <th class="col-data">Data da Inscrição</th>
+                    <th class="col-data">Inscrito em:</th>
                 </tr>
             </thead>
             <tbody>
@@ -177,13 +188,13 @@ footer {
         </table>
 
         <!-- RESERVAS -->
-        <div class="bloco-titulo">Lista de Reserva</div>
+        <div class="bloco-titulo">Lista de Reservas</div>
         <table>
             <thead>
                 <tr>
                     <th class="col-nome">Nome de Guerra</th>
                     <th class="col-matricula">Matrícula</th>
-                    <th class="col-data">Data da Inscrição</th>
+                    <th class="col-data">Inscrito em:</th>
                 </tr>
             </thead>
             <tbody>
@@ -201,43 +212,11 @@ footer {
             </tbody>
         </table>
 
-        <!-- CANCELADOS -->
-        <div class="bloco-titulo">Cancelamentos</div>
-        <table>
-            <thead>
-                <tr>
-                    <th class="col-nome">Nome de Guerra</th>
-                    <th class="col-matricula">Matrícula</th>
-                    <th class="col-data">Data do Cancelamento</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for reg in service.cancelados %}
-                <tr>
-                    <td>{{ reg.user.get_full_name|default:reg.user.username }}</td>
-                    <td class="col-matricula">{{ reg.user.registration|default:"-" }}</td>
-                    <td class="col-data">{{ reg.updated_at|date:"d/m/Y H:i:s" }}</td>
-                </tr>
-                {% empty %}
-                <tr>
-                    <td colspan="3" class="empty">Nenhum cancelamento</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-
     </div>
     {% empty %}
     <p class="empty">Nenhum serviço encontrado.</p>
     {% endfor %}
 {% endfor %}
-
-<!-- ===================== FOOTER ===================== -->
-<footer>
-    <span class="page-number"></span>
-    &nbsp;|&nbsp;
-    Documento gerado em {{ now|date:"d/m/Y H:i:s" }}
-</footer>
 
 </body>
 </html>

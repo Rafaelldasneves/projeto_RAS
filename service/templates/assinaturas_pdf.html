@@ -1,0 +1,213 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<title>Relatório de Inscrições</title>
+
+<style>
+
+/* ===================== PÁGINA ===================== */
+@page {
+    size: A4;
+    margin: 7cm 2cm 3cm 2cm;
+
+    @top-center {
+        content: element(topo);
+    }
+    @bottom-center {
+        content: element(footer);
+    }
+}
+
+/* ===================== BASE ===================== */
+body {
+    font-family: "Times New Roman", serif;
+    font-size: 12px;
+    color: #000;
+    line-height: 1.5;
+    margin: 0;
+    padding: 0;
+}
+
+/* ===================== CABEÇALHO ===================== */
+.topo {
+    position: running(topo);
+    text-align: center;
+    margin-bottom: 5px;
+}
+
+.logo {
+    width: 70px;
+    margin-bottom: 5px;
+}
+
+.orgao {
+    font-size: 12px;
+    font-weight: bold;
+    text-transform: uppercase;
+}
+
+.titulo {
+    font-size: 16px;
+    font-weight: bold;
+    text-decoration:underline;
+    margin-top: 30px;
+}
+
+.subtitulo {
+    font-size: 12px;
+    margin-top: 2px;
+}
+
+/* ===================== SEÇÃO ===================== */
+.grupo-dia {
+    page-break-after: always; /* Força uma nova página APENAS quando mudar o dia */
+}
+
+.grupo-dia:last-child {
+    page-break-after: auto; /* Evita uma página em branco no final do relatório */
+}
+
+.service {
+    margin-bottom: 25px;
+    page-break-inside: avoid; /* Impede que um evento seja cortado ao meio se quebrar de página */
+}
+
+.service-title {
+    font-weight: bold;
+    font-size: 14px;
+    margin-bottom: 8px;
+    border-bottom: 1px dashed #ccc; /* Linha sutil para separar os eventos do mesmo dia */
+    padding-bottom: 4px;
+}
+
+
+/* ===================== TABELAS ===================== */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+    margin-bottom: 12px;
+    font-size: 12px;
+}
+
+th, td {
+    border: 1px solid #000;
+    padding: 6px;
+}
+
+th {
+    background: #f0f0f0;
+    font-weight: bold;
+}
+
+/* COLUNAS */
+.col-nome { text-align: center; width: 40%; }
+.col-matricula { text-align: center; width: 10%;}
+.col-assinatura { text-align: center; width: 45%; }
+
+/* VAZIO */
+.empty {
+    text-align: center;
+    font-style: italic;
+}
+
+/* ===================== FOOTER ===================== */
+footer {
+    position: running(footer);
+    text-align: center;
+    font-size: 10px;
+    border-top: 1px solid #000;
+    padding-top: 6px;
+}
+
+</style>
+</head>
+
+<body>
+<!-- ===================== FOOTER ===================== -->
+<footer>
+    Documento gerado em {{ now|date:"d/m/Y H:i:s" }}
+</footer>
+
+<!-- ===================== CABEÇALHO ===================== -->
+<div class="topo">
+    <img src="{% static 'img/Logo_GCM.png' %}" class="logo">
+
+    <div class="orgao">
+        PREFEITURA MUNICIPAL DE CASIMIRO DE ABREU - RJ        
+    </div>
+    <div class="orgao">
+        SECRETARIA DE SEGURANÇA PÚBLICA
+    </div>
+    <div class="orgao">
+        GUARDA CIVIL MUNICIPAL
+    </div>
+
+    <div class="titulo">
+        {{ period.name }}
+    </div>
+
+    <div class="subtitulo">
+        Período: {{ period.date_start|date:"d/m/Y" }} a {{ period.date_end|date:"d/m/Y" }}
+    </div>
+</div>
+
+<!-- ===================== CONTEÚDO ===================== -->
+{% for period, services in grouped_services.items %}
+    
+    <!-- Agrupa a lista de serviços pela data -->
+    {% regroup services by date as services_by_date %}
+
+    {% for data_grupo in services_by_date %}
+    <div class="grupo-dia">
+        
+        <!-- Título do Dia Principal (Aparece uma vez no topo da página) -->
+        <h2 style="font-size: 16px; margin-bottom: 15px; text-transform: uppercase;">
+            Data: {{ data_grupo.grouper|date:"d/m/Y" }}
+        </h2>
+
+        <!-- Loop pelos eventos/serviços que acontecem neste mesmo dia -->
+        {% for service in data_grupo.list %}
+        <div class="service">
+
+            <div class="service-title">
+                Horário: {{ service.time_start|time:"H:i" }} às {{ service.time_end|time:"H:i" }}
+                | Vagas: {{ service.vacancies }}
+            </div>
+
+            <!-- CONFIRMADOS -->
+            <table>
+                <thead>
+                    <tr>
+                        <th class="col-nome">Nome</th>
+                        <th class="col-matricula">Matrícula</th>
+                        <th class="col-assinatura">Assinatura</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for reg in service.confirmados %}
+                    <tr>
+                        <td>{{ reg.user.get_full_name|default:reg.user.name|upper }}</td>
+                        <td class="col-matricula">{{ reg.user.registration|default:"-" }}</td>
+                        <td class="col-assinatura"></td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="3" class="empty">Nenhum confirmado</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% endfor %}
+
+    </div>
+    {% empty %}
+    <p class="empty">Nenhum serviço encontrado.</p>
+    {% endfor %}
+{% endfor %}
+
+</body>
+</html>

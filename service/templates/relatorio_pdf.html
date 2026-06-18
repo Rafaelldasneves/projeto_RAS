@@ -10,7 +10,7 @@
 /* ===================== CONFIGURAÇÃO DA PÁGINA ===================== */
 @page {
     size: A4;
-    margin: 4.5cm 1.5cm 2cm 1.5cm;
+    margin: 5.5cm 1.5cm 2cm 1.5cm;
 
     @top-center {
         content: element(header);
@@ -170,10 +170,6 @@ tbody tr:nth-child(even) {
     width: 25%;
     text-align: center;
 }
-.col-assinatura {
-    width: 35%;
-    text-align: center;
-}
 
 /* Status com tons de cinza */
 .status-confirmado { background: #ffffff9e; }
@@ -220,8 +216,10 @@ tbody tr:nth-child(even) {
     <div class="logo-container">
         <img src="file://{{ logo_path }}" alt="Logo Institucional">
     </div>
-    <div class="company-title">SECRETARIA MUNICIPAL</div>
-    <div class="report-title">Relatório de Inscrições em Serviços</div>
+    <div class="company-title">PREFEITURA MUNICIPAL DE CASIMIRO DE ABREU - RJ</div>
+    <div class="company-title">SECRETARIA DE SEGURANÇA PÚBLICA</div>
+    <div class="company-title">GUARDA CIVIL MUNICIPAL</div>
+    <div class="report-title">Relatório de Inscrições</div>
     <div class="period-info">Período: {{ date_start|date:"d/m/Y" }} a {{ date_end|date:"d/m/Y" }}</div>
 </header>
 
@@ -255,7 +253,6 @@ tbody tr:nth-child(even) {
                         <th class="col-nome">Nome de Guerra</th>
                         <th class="col-matricula">Matrícula</th>
                         <th class="col-data">Data da Inscrição</th>
-                        <th class="col-assinatura">Assinatura</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -264,7 +261,6 @@ tbody tr:nth-child(even) {
                         <td class="col-nome">{{ reg.user.username }}</td>
                         <td class="col-matricula">{{ reg.user.registration|default:"N/A" }}</td>
                         <td class="col-data">{{ reg.registration_date|date:"d/m/Y H:i:s" }}</td>
-                        <td class="col-assinatura"></td>
                     </tr>
                     {% empty %}
                     <tr>

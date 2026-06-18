@@ -1,12 +1,18 @@
 body{
+    color: rgb(255, 255, 255);
+    font-family: sans-serif;
+    padding: 10px;
+}
+body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
     background-image: url('/static/img/GCM_02.jpeg');
     background-size: cover;
     background-position: top;
     background-repeat: no-repeat;
-    
-    color: rgb(255, 255, 255);
-    font-family: sans-serif;
-    padding: 10px;
+    opacity: 0.2;
+    z-index: -1;
 }
 
 /* HEADER */

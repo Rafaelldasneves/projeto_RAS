@@ -11,4 +11,5 @@ urlpatterns = [
     path('agents/<int:pk>/cancel_registration', views.cancel_registration_service, name='cancel_registration'),
     path('exportar-pdf/', views.exportar_pdf, name='exportar_pdf'),
     path('relatorio-pdf/', views.relatorio_pdf_view, name='relatorio_pdf'),
+    path('assinaturas-pdf/', views.assinaturas_pdf, name='assinaturas_pdf'),
 ]

@@ -4,12 +4,12 @@
 <div class="container-fluid">
   {% if user.is_authenticated %}
     <span class="text-center text-light" style="font-size: 25px; padding-left:0px;">Seja Bem-Vindo(a),
-    <strong>{{user.get_full_name|default:user.username }}!</strong></span>
+    <strong>{{user.get_full_name|default:user.position }} {{user.get_full_name|default:user.username }}  !</strong></span>
   {% endif %}
 </div>
 
 <div class="container mt-4">
-  <h2 class="mb-4">Listagem de RAS (Regime Adicional de Serviço) </h2>
+  <h2 class="mb-4"> <strong> RAS DISPONÍVEIS PARA CONSULTA E MARCAÇÃO:</strong> </h2>
 
   {% if grouped_services %}
     <div class="accordion" id="accordionPeriods">
