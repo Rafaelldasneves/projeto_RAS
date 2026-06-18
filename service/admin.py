@@ -1,21 +1,5 @@
 from django.contrib import admin
-from .models import Period, Service, RegistrationService
-
-
-class ServiceInline(admin.TabularInline):
-    model = Service
-    extra = 1
-    fields = ['date', 'time_start', 'time_end', 'vacancies']
-
-
-@admin.register(Period)
-class PeriodAdmin(admin.ModelAdmin):
-    list_display = ('name', 'date_start', 'date_end', 'description')
-    search_fields = ('name', 'description')
-    inlines = [ServiceInline]
-
-
-@admin.register(Service)
+from .models import Service, RegistrationService
 class ServiceAdmin(admin.ModelAdmin):
     list_display = ('period', 'date', 'time_start', 'time_end', 'vacancies', 'remaining_vacancies')
     list_filter = ('period', 'date')

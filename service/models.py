@@ -1,20 +1,6 @@
 from django.db import models
 from django.conf import settings
-
-
-class Period(models.Model):
-    name = models.CharField(max_length=200)
-    date_start = models.DateField()
-    date_end = models.DateField()
-    description = models.TextField(blank=True, null=True)
-    date_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
-
-    class Meta:
-        ordering = ['date_start']
-
-    def __str__(self):
-        return self.name
+from period.models import Period
 
 
 class Service(models.Model):
@@ -29,7 +15,7 @@ class Service(models.Model):
         unique_together = ('period', 'date', 'time_start')
 
     def __str__(self):
-        return f"{self.period.name} - {self.date.strftime('%d/%m/%Y')} - {self.time_start.strftime('%H:%M')}"
+        return f"{self.period.name} - {self.date.strftime('%d/%m/%Y')} - {self.time_start.strftime('%H:%M:%S')}"
 
     @property
     def occupied_vacancies(self):

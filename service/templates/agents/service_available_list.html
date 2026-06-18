@@ -15,72 +15,82 @@
                 {% endif %}
             </div>
     <div class="row">
-            {% if service_por_period %}
-                
-                {% for period, services_do_period in service_por_period.items %}
-                    <div class="card mt-3 col-12 my-6">
-                        <div class="card border-primary my-6" >
-                            <div class="card-header border-primary " style="background-color: #043988">                    
-                                <h4>{{ period.name }}</h4>
-                                <small class="d-block">
-                                    De {{ period.date_start|date:"d/m/Y" }} até {{ period.date_end|date:"d/m/Y" }}
-                                    {% if period.description %}<br>({{ period.description }}){% endif %}
-                                </small>
+        {% if service_por_period %}
+            <div class="accordion" id="accordionPeriods">
+                {% for period, services_by_date in service_por_period.items %}
+                    <div class="accordion-item mb-3">
+                        <h2 class="accordion-header" id="heading{{ forloop.counter }}">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                                    data-bs-target="#collapse{{ forloop.counter }}" aria-expanded="false"
+                                    aria-controls="collapse{{ forloop.counter }}">
+                                <div>
+                                    <strong class="fs-4 text-primary">{{ period.name }}</strong>
+                                    <div class="fs-5 text-muted">
+                                        De {{ period.date_start|date:"d/m/Y" }} até {{ period.date_end|date:"d/m/Y" }}
+                                        {% if period.description %}<br>({{ period.description }}){% endif %}
+                                    </div>
+                                </div>
+                            </button>
+                        </h2>
+                        <div id="collapse{{ forloop.counter }}" class="accordion-collapse collapse"
+                             aria-labelledby="heading{{ forloop.counter }}" data-bs-parent="#accordionPeriods">
+                            <div class="accordion-body">
+                                {% if services_by_date %}
+                                    {% for service_date, services in services_by_date.items %}
+                                        <div class="mb-4">
+                                            <div class="bg-primary text-white px-3 py-2 rounded mb-2">
+                                                <strong>Dia: {{ service_date|date:"d/m/Y" }}</strong>
+                                            </div>
+                                            {% for service in services %}
+                                                <div class="card mb-3 shadow-sm">
+                                                    <div class="card-body d-flex justify-content-between align-items-center">
+                                                        <div>
+                                                            <p class="mb-1 text-muted">
+                                                                Horário: {{ service.time_start|time:"H:i:s" }} às {{ service.time_end|time:"H:i:s" }}
+                                                            </p>
+                                                            <p class="mb-0">
+                                                                <span class="badge bg-secondary me-2">Total: {{ service.vacancies }} vagas</span>
+                                                                {% if service.remaining_vacancies > 0 %}
+                                                                    <span class="badge bg-success">Vagas Livres: {{ service.remaining_vacancies }}</span>
+                                                                {% else %}
+                                                                    <span class="badge bg-danger">Vagas Esgotadas (Reserva Ativa)</span>
+                                                                {% endif %}
+                                                            </p>
+                                                        </div>
+                                                        <div class="text-end">
+                                                            {% if service.id in service_ids_cancelled %}
+                                                                <button class="btn btn-danger btn-sm disabled">Cancelado</button>
+                                                            {% elif service.id in service_ids_registered %}
+                                                                <button class="btn btn-success btn-sm disabled">Inscrito</button>
+                                                                <a href="{% url 'my_subscriptions' %}" class="btn btn-outline-info btn-sm ms-2">Ver Inscrição</a>
+                                                            {% elif service.date|date:"Ymd" < "now"|date:"Ymd" %}
+                                                                <button class="btn btn-outline-info btn-sm" disabled>Plantão Expirado</button>
+                                                            {% else %}
+                                                                <form method="post" action="{% url 'apply_plantation' service.pk %}" style="display:inline;">
+                                                                    {% csrf_token %}
+                                                                    <button type="submit" class="btn btn-primary btn-sm">
+                                                                        Candidatar-se
+                                                                    </button>
+                                                                </form>
+                                                            {% endif %}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            {% endfor %}
+                                        </div>
+                                    {% endfor %}
+                                {% else %}
+                                    <p class="text-muted">Nenhum plantão cadastrado neste período.</p>
+                                {% endif %}
                             </div>
-
-                            <ul class="list-group list-group-flush">
-                                
-                                {% for service in services_do_period %}
-                                
-                                <li class="list-group-item d-flex justify-content-between align-items-center">
-                                    
-                                    <div>
-                                        <h5 class="mb-1 text-primary">Dia: {{ service.date|date:"d/m/Y" }}</h5>
-                                        <p class="mb-1 text-muted">Horário: {{ service.time_start|time:"H:i" }} às {{ service.time_end|time:"H:i" }}</p>
-                                        
-                                        <span class="badge bg-secondary me-2">Total: {{ service.vacancies }} vagas</span>
-                                        
-                                        {% if service.remaining_vacancies > 0 %}
-                                            <span class="badge bg-success">Vagas Livres: {{ service.remaining_vacancies }}</span>
-                                        {% else %}
-                                            <span class="badge bg-danger">Vagas Esgotadas (Reserva Ativa)</span>
-                                        {% endif %}
-                                    </div>
-                                    
-                                    <div>
-                                        
-                                        {% if service.id in service_ids_cancelled %}
-                                            <button class="btn btn-danger btn-sm disabled">Cancelado</button>
-
-                                        {% elif service.id in service_ids_registered %}
-                                            <button class="btn btn-success btn-sm disabled">Inscrito</button>
-                                            <a href="{% url 'my_subscriptions' %}" class="btn btn-outline-info btn-sm me-4">Ver Inscrição</a>
-
-                                        {% elif service.date|date:"Ymd" < "now"|date:"Ymd" %}
-                                            <button class="btn btn-outline-info btn-sm me-4" disabled>Plantão Expirado</button>
-
-                                        {% else %}
-                                            <form method="post" action="{% url 'apply_plantation' service.pk %}" style="display:inline;">
-                                                {% csrf_token %}
-                                                <button type="submit" class="btn btn-primary btn-sm me-4">
-                                                    Candidatar-se
-                                                </button>
-                                            </form>
-                                        {% endif %}
-                                    </div>
-                                </li>
-                                {% endfor %}
-                            </ul>
                         </div>
                     </div>
-    
                 {% endfor %}
-                
-            {% else %}
-        
+            </div>
+        {% else %}
             <p class="alert alert-info">Nenhum período de plantão futuro disponível no momento.</p>
-            {% endif %}
-        </div>
+        {% endif %}
+    </div>
     </div>
 </div>
 <br>

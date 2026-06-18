@@ -81,9 +81,11 @@
             </table>
             {{ formset.management_form }}
         </div>
-        <button type="button" id="add-plantao" class="btn btn-outline-success btn-sm me-4">Adicionar RAS</button>
-        <button type="submit" class="btn btn-outline-primary btn-sm me-4">Salvar</button>
-        <a href="{% url 'period_list' %}" class="btn btn-outline-danger btn-sm me-4">Cancelar</a>
+        <div class="d-flex flex-shrink-0 align-items-center mb-5" >
+            <button type="button" id="add-plantao" class="btn btn-success me-4">Adicionar RAS</button>
+            <button type="submit" class="btn btn-primary me-4">Salvar</button>
+            <a href="{% url 'period_list' %}" class="btn btn-danger me-4">Cancelar</a>
+        </div>
     </form>
 </div>
 

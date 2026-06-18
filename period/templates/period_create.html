@@ -7,10 +7,21 @@
     <form method="post" class="form">
         {% csrf_token %}
 
-        {% if form.errors %}
+        {% if messages %}
+        <div>
+            {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}" role="alert">
+                {{ message|safe }}
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        {% if form.errors or formset.non_form_errors %}
         <div class="alert alert-danger">
             <strong>Erro no Período:</strong>
             {{ form.non_field_errors }}
+            {{ formset.non_form_errors }}
         </div>
         {% endif %}
 
@@ -82,10 +93,10 @@
             </table>
             {{ formset.management_form }}
         </div>
-        <div class="d-flex flex-shrink-0 align-items-center">
-            <button type="button" id="add-plantao" class="btn btn-outline-success btn-sm me-4">Adicionar RAS</button>
-            <button type="submit" class="btn btn-outline-primary btn-sm me-4">Salvar</button>
-            <a href="{% url 'period_list' %}" class="btn btn-outline-danger btn-sm me-4">Cancelar</a>
+        <div class="d-flex flex-shrink-0 align-items-center mb-5" >
+            <button type="button" id="add-plantao" class="btn btn-success me-4">Adicionar RAS</button>
+            <button type="submit" class="btn btn-primary me-4">Salvar</button>
+            <a href="{% url 'period_list' %}" class="btn btn-danger me-4">Cancelar</a>
         </div>
     </form>
 </div>

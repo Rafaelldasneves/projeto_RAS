@@ -7,7 +7,7 @@
     </a>
 
     <h3>Inscrições para: {{ service.date|date:"d/m/Y" }}</h3>
-    <h4>( Horário: De {{ service.time_start|time:"H:i" }} as {{ service.time_end|time:"H:i" }} )</h4>
+    <h4>( Horário: De {{ service.time_start|time:"H:i:s" }} as {{ service.time_end|time:"H:i:s" }} )</h4>
     
     <div class="container-fluid mt-3">
         <div class="py-3" style="width: 640px;">
@@ -67,7 +67,5 @@
 
     </div>
 </div>
-
-{% include 'components/_pagination.html' %}
 
 {% endblock %}

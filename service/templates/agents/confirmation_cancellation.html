@@ -8,7 +8,7 @@
 
         <div class="alert alert-warning" role="alert">
             <h5 class="alert-heading">Atenção!</h5>
-            Você tem certeza que deseja cancelar sua inscrição para o RAS do dia: <strong>{{ service.date|date:"d/m/Y" }}</strong> de <strong>{{ service.time_start|time:"H:i" }} às {{ service.time_end|time:"H:i" }}</strong>?
+            Você tem certeza que deseja cancelar sua inscrição para o RAS do dia: <strong>{{ service.date|date:"d/m/Y" }}</strong> de <strong>{{ service.time_start|time:"H:i:s" }} às {{ service.time_end|time:"H:i:s" }}</strong>?
              <p class="mb-0">Esta ação é irreversível.</p>
         </div>
 
@@ -19,6 +19,5 @@
         </form>
     </div>
 </div>
-{% include 'components/_pagination.html' %}
 
 {% endblock %}

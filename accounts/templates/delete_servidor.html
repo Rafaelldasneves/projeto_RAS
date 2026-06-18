@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+
+{% load static %}
+
+{% block content %}
+
+<div class="container mt-4">
+    <h3 class="display-6"> Deletar Servidor </h3>
+    
+    <div class="card">
+        <div class="card-body">
+            <p class="card-text display-6">Deseja excluir o Servidor: <strong>{{ servidor.position }} {{ servidor.username }}, Matricula: {{ servidor.registration }}</strong> ? </p>
+            
+            <form method="post">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-danger"> Deletar </button>
+            </form>
+            <a href="{% url 'list_servidor' %}" class="btn btn-secondary mt-3">Retornar Lista Servidor</a>
+        </div>
+
+    </div>
+</div>
+    
+
+{%endblock%}

@@ -1,0 +1,162 @@
+{% extends 'base.html' %}
+
+{% block title %}Registro de Usuário{% endblock %}
+
+{% load static %}
+
+{% block content %}
+
+<div class="box">
+
+    <div class="login-card ">
+
+        <div class="form-box w-50 mx-auto border border-primary rounded p-2">
+
+            <h2 class="fw-bold text-center mb-4">Criar Conta</h2>
+                {% if form.errors %}
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+
+                        <ul class="mb-0">
+
+                            {% for field in form %}
+                                {% for error in field.errors %}
+                                    <li><strong>{{ field.label }}:</strong> {{ error }}</li>
+                                {% endfor %}
+                            {% endfor %}
+
+                            {% for error in form.non_field_errors %}
+                                <li>{{ error }}</li>
+                            {% endfor %}
+
+                        </ul>
+
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+
+                    </div>
+                {% endif %}
+
+            <form action="{% url 'register_servidor' %}" method="post">
+                {% csrf_token %}
+
+                <!-- Cargo -->
+                <div class="input-group mb-3">
+                    <label class="input-group-text" for="{{ form.position.id_for_label }}">Cargo</label>
+                    {{ form.position }}
+                </div>
+
+                <!-- Nome de Guerra -->
+                <div class="input-group mb-3">
+                    <label class="input-group-text" for="username">Nome de Guerra</label>
+                    <input type="text"
+                           class="form-control"
+                           id="username"
+                           name="username"
+                           value="{{form.username.value|default:''}}"
+                           placeholder="Digite seu nome de guerra"
+                           required>
+                </div>
+
+                <!-- Matrícula -->
+                <div class="input-group mb-3">
+                    <label class="input-group-text" for="registration">Matrícula</label>
+                    <input type="text"
+                           class="form-control"
+                           id="registration"
+                           name="registration"
+                           value="{{form.registration.value|default:''}}"
+                           placeholder="Digite sua matrícula"
+                           required>
+                </div>
+
+                <!-- Nome Completo -->
+                <div class="input-group mb-3">
+                    <label class="input-group-text" for="name">Nome Completo</label>
+                    <input type="text"
+                           class="form-control"
+                           id="name"
+                           name="name"
+                           value="{{form.name.value|default:''}}"
+                           placeholder="Digite seu nome completo"
+                           required>
+                </div>
+
+                <!-- Data de Admissão -->
+                <div class="input-group mb-3">
+                    <label class="input-group-text" for="admission_date">Data de Admissão</label>
+                    <input type="date"
+                           class="form-control"
+                           id="admission_date"
+                           value="{{form.admission_date.value|default:''}}"
+                           name="admission_date"
+                           required>
+                </div>
+
+                <!-- Email -->
+                <div class="input-group mb-3">
+                    <label class="input-group-text" for="email">E-mail</label>
+                    <input type="email"
+                           class="form-control"
+                           id="email"
+                           name="email"
+                           value="{{form.email.value|default:''}}"
+                           placeholder="Digite seu email"
+                           required>
+                </div>
+
+                <!-- Telefone -->
+                <div class="input-group mb-3">
+                    <label class="input-group-text" for="phone_number">Telefone</label>
+                    <input type="tel"
+                           class="form-control"
+                           id="phone_number"
+                           name="phone_number"
+                           value="{{form.phone_number.value|default:''}}"
+                           placeholder="+5522000000000"
+                           required>
+                </div>
+
+                <!-- Senha -->
+                <div class="input-group mb-3">
+                    <label class="input-group-text" for="password">Senha</label>
+                    <input type="password"
+                           class="form-control"
+                           id="password"
+                           name="password"
+                           placeholder="Digite sua senha"
+                           required>
+                </div>
+
+                <!-- Confirmar senha -->
+                <div class="input-group mb-4">
+                    <label class="input-group-text" for="confirm_password">Confirmar Senha</label>
+                    <input type="password"
+                           class="form-control"
+                           id="confirm_password"
+                           name="confirm_password"
+                           placeholder="Confirme sua senha"
+                           required>
+                </div>
+
+                <!-- Botão -->
+                <div class="d-grid mb-3">
+                    <button type="submit" class="btn btn-light text-dark fw-semibold">
+                        Cadastrar
+                    </button>
+                </div>
+
+                <!-- Link login -->
+                <div class="text-center">
+                    <a href="{% url 'login' %}" class="text-white text-decoration-none small fs-6">
+                        Já sou cadastrado
+                    </a>
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

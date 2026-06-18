@@ -45,8 +45,23 @@
           </li>
 
           {% if perms.service.add_period and perms.service.add_service and perms.service.view_period %}
-          <li class="nav-item">
-            <a class="nav-link btn btn-dark mx-1" href="{% url 'period_list' %}">Gestor</a>
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle btn btn-dark mx-1" href="#" id="gestorDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+              Gestor
+            </a>
+            <ul class="dropdown-menu" aria-labelledby="gestorDropdown">
+              <li><a class="dropdown-item" href="{% url 'period_list' %}">Períodos</a></li>
+              <li><a class="dropdown-item" href="{% url 'relatorio_pdf' %}">Relatório PDF</a></li>
+            </ul>
+          </li>
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle btn btn-dark mx-1" href="#" id="servidorDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+              Servidor
+            </a>
+            <ul class="dropdown-menu" aria-labelledby="servidorDropdown">
+              <li><a class="dropdown-item" href="{% url 'list_servidor' %}">Lista de Servidores</a></li>
+              <li><a class="dropdown-item" href="{% url 'register_servidor' %}">Registrar Servidor</a></li>
+            </ul>
           </li>
           {% endif %}
         </ul>

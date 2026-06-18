@@ -17,71 +17,73 @@
       {% for period, services in grouped_services.items %}
 
         <div class="accordion-item border mb-3">
-          <div class="d-flex justify-content-end">
-            <a href="{% url 'exportar_pdf' %}?period_id={{ period.id }}&tipo=todos" 
-            class="btn btn-sm btn-outline-danger justify-content-end mb-1" target="_blank">Exportar PDF</a>
-          </div>
-          <h1 class="accordion-header" id="heading{{ forloop.counter }}">
-            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
-                    data-bs-target="#collapse{{ forloop.counter }}" aria-expanded="false"
-                    aria-controls="collapse{{ forloop.counter }}">
-              {{ period.name }} --  <strong> ( {{ period.date_start|date:"d/m/Y"}} à {{period.date_end|date:"d/m/Y"}}) </strong>
-            </button>
-          </h1>
-
-          <div id="collapse{{ forloop.counter }}" class="accordion-collapse collapse"
-               aria-labelledby="heading{{ forloop.counter }}" data-bs-parent="#accordionPeriods">
-            <div class="accordion-body">
-
-              {% if services %}
-                {% for service in services %}
-                  <div class="card mb-3 shadow-sm">
-                    <div class="card-body" >
-                      <h5>
-                        {{ service.date|date:"d/m/Y" }}
-                        ({{ service.time_start|time:"H:i" }} - {{ service.time_end|time:"H:i" }})
-                      </h5>
-                      <p>
-                        Vagas: {{ service.vacancies }} |
-                        Confirmadas: {{ service.occupied_vacancies }} |
-                        Restantes: {{ service.remaining_vacancies }}
-                      </p>
-
-                      <h5>Confirmados (  {{ service.confirmados.count }}  )</h5>
-                      {% if service.confirmados %}
-                        <ul class="list-group mb-3">
-                          {% for reg in service.confirmados %}
-                            <li class="list-group-item list-group-item-success">
-                              <strong>{{ reg.user.get_full_name|default:reg.user.username }} </strong>
-                              <small class="text-muted"> — (  {{ reg.registration_date|date:"d/m/Y H:i:s" }}  )</small>
-                            </li>
-                          {% endfor %}
-                        </ul>
-                      {% else %}
-                        <p class="text-muted">Nenhum confirmado.</p>
-                      {% endif %}
-
-                      <h5>Reservas: <!--( {{ reservation_limit }} ) --> </h5>
-                      {% if service.reservas %}
-                        <ul class="list-group">
-                          {% for reg in service.reservas %}
-                            <li class="list-group-item list-group-item-warning">
-                              {{ reg.user.get_full_name|default:reg.user.username }}
-                              <small class="text-muted"> — (  {{ reg.registration_date|date:"d/m/Y H:i:s" }}  )</small>
-                            </li>
-                          {% endfor %}
-                        </ul>
-                      {% else %}
-                        <p class="text-muted">Nenhuma reserva.</p>
-                      {% endif %}
-                    </div>
-                  </div>
-                {% endfor %}
-              {% else %}
-                <p class="text-muted">Nenhum plantão cadastrado neste período.</p>
-              {% endif %}
+          
+            <h1 class="accordion-header" id="heading{{ forloop.counter }}">
+              <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                      data-bs-target="#collapse{{ forloop.counter }}" aria-expanded="false"
+                      aria-controls="collapse{{ forloop.counter }}">
+                  <strong class="fs-3 text-primary">{{ period.name }} </strong> - 
+                  <div class="fs-4 text-muted">( {{ period.date_start|date:"d/m/Y"}} à {{period.date_end|date:"d/m/Y"}})</div>
+              </button>
+            </h1>
+            <div class="text-end">
+              <a href="{% url 'exportar_pdf' %}?period_id={{ period.id }}&tipo=todos" 
+            class="btn btn-sm btn-primary mb-1" target="_blank">Exportar PDF</a>
             </div>
-          </div>
+            
+            <div id="collapse{{ forloop.counter }}" class="accordion-collapse collapse"
+                aria-labelledby="heading{{ forloop.counter }}" data-bs-parent="#accordionPeriods">
+              <div class="accordion-body">
+
+                {% if services %}
+                  {% for service in services %}
+                    <div class="card mb-3 shadow-sm">
+                      <div class="card-body" >
+                        <h5>
+                          {{ service.date|date:"d/m/Y" }}
+                          ({{ service.time_start|time:"H:i:s" }} - {{ service.time_end|time:"H:i:s" }})
+                        </h5>
+                        <p>
+                          Vagas: {{ service.vacancies }} |
+                          Confirmadas: {{ service.occupied_vacancies }} |
+                          Restantes: {{ service.remaining_vacancies }}
+                        </p>
+
+                        <h5>Confirmados (  {{ service.confirmados.count }}  )</h5>
+                        {% if service.confirmados %}
+                          <ul class="list-group mb-3">
+                            {% for reg in service.confirmados %}
+                              <li class="list-group-item list-group-item-success">
+                                <strong>{{ reg.user.get_full_name|default:reg.user.username }} </strong>
+                                <small class="text-muted"> — (  {{ reg.registration_date|date:"d/m/Y H:i:s" }}  )</small>
+                              </li>
+                            {% endfor %}
+                          </ul>
+                        {% else %}
+                          <p class="text-muted">Nenhum confirmado.</p>
+                        {% endif %}
+
+                        <h5>Reservas: <!--( {{ reservation_limit }} ) --> </h5>
+                        {% if service.reservas %}
+                          <ul class="list-group">
+                            {% for reg in service.reservas %}
+                              <li class="list-group-item list-group-item-warning">
+                                {{ reg.user.get_full_name|default:reg.user.username }}
+                                <small class="text-muted"> — (  {{ reg.registration_date|date:"d/m/Y H:i:s" }}  )</small>
+                              </li>
+                            {% endfor %}
+                          </ul>
+                        {% else %}
+                          <p class="text-muted">Nenhuma reserva.</p>
+                        {% endif %}
+                      </div>
+                    </div>
+                  {% endfor %}
+                {% else %}
+                  <p class="text-muted">Nenhum plantão cadastrado neste período.</p>
+                {% endif %}
+              </div>
+            </div>
         </div>
       {% endfor %}
     </div>
@@ -89,4 +91,5 @@
     <p class="text-muted">Nenhum período com plantões encontrado.</p>
   {% endif %}
 </div>
+{% include 'components/_pagination.html' %}
 {% endblock %}

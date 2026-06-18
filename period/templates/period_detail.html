@@ -1,0 +1,110 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <a href="{% url 'period_list' %}" class="btn btn-outline-secondary mb-3">Voltar para Períodos</a>
+
+    <h1>Períod: {{ period.name }}</h1>
+    <p><strong>Descrição:</strong> {{ period.description|default:"Nenhuma" }}</p>
+    <p><strong>Vigência:</strong> {{ period.date_start|date:"d/m/Y" }} a {{ period.date_end|date:"d/m/Y" }}</p>
+
+    <h2 class="mt-4">(  {{ total_vacancies }}  ) Total de Vagas neste Período.</h2>
+
+    {% if services %}
+    <table class="table table-striped table-dark">
+        <thead>
+            <tr>
+                <th class="text-center">Data</th>
+                <th class="text-center">Horário</th>
+                <th class="text-center">Vagas Totais</th>
+                <th class="text-center">Vagas Restantes</th>
+                <th class="text-center">Ações</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for service in services %}
+            <tr>
+                <td class="text-center">{{ service.date|date:"d/m/Y" }}</td>
+                <td class="text-center">{{ service.time_start|time:"H:i" }} - {{ service.time_end|time:"H:i" }}</td>
+                <td class="text-center">{{ service.vacancies }}</td>
+                <td class="text-center">
+                    {% if service.remaining_vacancies > 0 %}
+                    <span class="badge bg-success text-center">{{ service.remaining_vacancies }}</span>
+                    {% else %}
+                    <span class="badge bg-danger text-center">Esgotado</span>
+                    {% endif %}
+                </td>
+                <td class="text-center">
+                    <a href="{% url 'registrations_list' service.pk %}" class="btn btn-outline-info btn-sm text-center">
+                        Ver Inscrições ({{ service.occupied_vacancies }} confirmados)
+                    </a>
+                </td>
+            </tr>
+            <tr class="table-secondary table-striped table-dark">
+                <td colspan="5">
+                    <div class="row mt-3">
+                        <div class="col-md-12">
+                            <h6>Confirmados ({{ service.confirmados|length }})</h6>
+                            {% if service.confirmados %}
+                            <ul class="list-group list-group-flush ">
+                                {% for registration in service.confirmados %}
+                                <li class="list-group-item d-flex justify-content-between align-items-center list-group-item-success">
+                                    {{ registration.user.get_full_name|default:registration.user.username }}
+                                    <form method="post" action="{% url 'cancel_registration_manager' registration.pk %}">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn btn-sm btn-outline-danger">Cancelar</button>
+                                    </form>
+                                </li>
+                                {% endfor %}
+                            </ul>
+                            {% else %}
+                            <p class="mb-0 text-muted">Nenhum confirmado.</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="row mt-3">
+                        <div class="col-md-12">
+                            <h6>Reservas ({{ service.reservas|length }})</h6>
+                            {% if service.reservas %}
+                            <ul class="list-group list-group-flush">
+                                {% for registration in service.reservas %}
+                                <li class="list-group-item d-flex justify-content-between align-items-center list-group-item-warning">
+                                    {{ registration.user.get_full_name|default:registration.user.username }}
+                                    <form method="post" action="{% url 'cancel_registration_manager' registration.pk %}">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn btn-sm btn-outline-danger">Cancelar</button>
+                                    </form>
+                                </li>
+                                {% endfor %}
+                            </ul>
+                            {% else %}
+                            <p class="mb-0 text-muted">Nenhuma reserva.</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="row mt-3">
+                        <div class="col-md-12">
+                            <h6>Cancelados ({{ service.cancelados|length }})</h6>
+                            {% if service.cancelados %}
+                            <ul class="list-group list-group-flush">
+                                {% for registration in service.cancelados %}
+                                <li class="list-group-item list-group-item-danger">
+                                    {{ registration.user.get_full_name|default:registration.user.username }}
+                                </li>
+                                {% endfor %}
+                            </ul>
+                            {% else %}
+                            <p class="mb-0 text-muted">Nenhum cancelado.</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p class="alert alert-warning">Nenhum plantão cadastrado neste período.</p>
+    {% endif %}
+</div>
+{% endblock content %}

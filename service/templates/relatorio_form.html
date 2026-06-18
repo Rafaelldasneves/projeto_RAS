@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-5">
+    <h1>Gerar Relatório PDF</h1>
+    <form method="post">
+        {% csrf_token %}
+        <div class="mb-3">
+            <label for="date_start" class="form-label">Data de Início</label>
+            <input type="date" class="form-control" id="date_start" name="date_start" required>
+        </div>
+        <div class="mb-3">
+            <label for="date_end" class="form-label">Data de Fim</label>
+            <input type="date" class="form-control" id="date_end" name="date_end" required>
+        </div>
+        <button type="submit" class="btn btn-primary">Gerar PDF</button>
+    </form>
+</div>
+{% endblock %}

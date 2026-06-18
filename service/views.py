@@ -4,47 +4,18 @@ from django.views.generic import ListView, DetailView, UpdateView, DeleteView, C
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.db import transaction, IntegrityError
-from django.db.models import Prefetch
+from django.db.models import Prefetch, Q
 from io import BytesIO
 from django.utils import timezone
 from django.http import HttpResponse
 from django.template.loader import get_template
 from weasyprint import HTML
-from .models import Period, Service, RegistrationService
+from .models import Service, RegistrationService
 from django.urls import reverse_lazy
-from django.forms import inlineformset_factory
-from django import forms
-from .forms import PeriodForm, ServiceInlineFormSet, ServiceForm
-import tempfile
-
-
-@permission_required('service.add_period', login_url='login')
-def PeriodCreate(request):
-    if request.method == 'POST':
-        form = PeriodForm(request.POST)
-        formset = ServiceInlineFormSet(request.POST, instance=Period())
-        if form.is_valid() and formset.is_valid():
-            try:
-                with transaction.atomic():
-                    period = form.save()
-                    formset.instance = period
-                    formset.save()
-                messages.success(request, "Período e RAS criados com sucesso!")
-                return redirect('period_list')
-            except Exception as e:
-                messages.error(request, f"Ocorreu um erro ao salvar: {e}")
-        else:
-            messages.error(request, "Erro de validação. Verifique os dados inseridos.")
-
-    else:
-        form = PeriodForm()
-        formset = ServiceInlineFormSet(instance=Period())
-    context = {
-        'form': form,
-        'formset': formset,
-        'title': 'Criar Novo Período de Plantões'
-    }
-    return render(request, 'period_create.html', context)
+from period.models import Period
+from datetime import datetime
+import os
+from django.conf import settings
 
 
 class ServiceCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
@@ -75,101 +46,38 @@ class ServiceCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView)
         return reverse_lazy('period_detail', kwargs={'pk': self.kwargs['period_pk']})
 
 
-class PeriodListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
+class ServiceListView(LoginRequiredMixin, ListView):
     model = Period
-    template_name = 'period_list.html'
-    context_object_name = 'periods'
-    paginate_by = 10
-    permission_required = 'service.view_period'
-
-
-class PeriodDetailView(LoginRequiredMixin, PermissionRequiredMixin, DetailView):
-    model = Period
-    template_name = 'period_detail.html'
-    paginate_by = 10
-    context_object_name = 'period'
-    permission_required = 'service.view_period'
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['services'] = self.object.plantoes.all()
-        return context
-
-
-class PeriodUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
-    model = Period
-    form_class = PeriodForm
-    template_name = 'period_update.html'
-    success_url = reverse_lazy('period_list')
-    success_message = "O Período e seus RAS foram atualizados com sucesso!"
-    permission_required = 'service.change_period'
-    widgets = {
-        'date': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
-        'time_start': forms.TimeInput(attrs={'class': 'form-control', 'type': 'time'}),
-        'time_end': forms.TimeInput(attrs={'class': 'form-control', 'type': 'time'}),
-        'vacancies': forms.NumberInput(attrs={'class': 'form-control', 'min': 1}),
-    }
-
-    ServiceFormSet = inlineformset_factory(
-        Period,
-        Service,
-        form=ServiceForm,
-        fields=('date', 'time_start', 'time_end', 'vacancies'),
-        extra=1,
-        can_delete=True
-    )
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        if self.request.POST:
-            context['formset'] = self.ServiceFormSet(self.request.POST, self.request.FILES, instance=self.object)
-        else:
-            context['formset'] = self.ServiceFormSet(instance=self.object)
-        return context
-
-    def form_valid(self, form):
-        context = self.get_context_data()
-        formset = context['formset']
-
-        if formset.is_valid():
-            self.object = form.save()
-            formset.instance = self.object
-            formset.save()
-            return super().form_valid(form)
-        else:
-            return self.render_to_response(self.get_context_data(form=form))
-
-
-class PeriodDeleteView(LoginRequiredMixin, PermissionRequiredMixin, DeleteView):
-    model = Period
-    success_url = reverse_lazy('period_list')
-    template_name = 'period_delete.html'
-    permission_required = 'service.delete_period'
-
-    def get_success_url(self):
-        from django.contrib import messages
-        messages.success(self.request, "O Período e todos os RAS associados foram excluídos permanentemente.")
-        return reverse_lazy('period_list')
-
-
-class ServiceListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
-    model = Service
-    paginate_by = 10
+    paginate_by = 5
     template_name = 'agents/service_available_list.html'
-    permission_required = 'service.view_service'
 
     def get_queryset(self):
-        return Service.objects.filter(date__gte=timezone.now().date()).order_by('period__date_start', 'date', 'time_start')
+        now = timezone.now()
+        return Period.objects.filter(
+            plantoes__date__gte=now.date()
+        ).filter(
+            Q(available_from__lte=now) | Q(available_from__isnull=True)
+        ).filter(
+            Q(available_until__gte=now) | Q(available_until__isnull=True)
+        ).order_by('date_start', 'date_end').prefetch_related(
+            Prefetch('plantoes', queryset=Service.objects.filter(date__gte=now.date()).order_by('date', 'time_start'))
+        ).distinct()
+
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        services_future = self.get_queryset()
+        periods = context.get('page_obj').object_list if context.get('page_obj') else context.get('object_list', self.get_queryset())
 
-    # Agrupa os serviços por período
+        # Agrupa os serviços por período usando o prefetch
         service_por_period = {}
-        for service in services_future:
-            period = service.period
-            service_por_period.setdefault(period, []).append(service)
+        for period in periods:
+            period_services = {}
+            # Usar os plantões já carregados pelo prefetch
+            for service in period.plantoes.all():
+                period_services.setdefault(service.date, []).append(service)
+            
+            service_por_period[period] = period_services
+
         context['service_por_period'] = service_por_period
 
         # Todas as inscrições do usuário
@@ -195,7 +103,6 @@ class ServiceListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
 class ServiceRegistrationsView(LoginRequiredMixin, PermissionRequiredMixin, DetailView):
     model = Service
     template_name = 'service_registration.html'
-    paginate_by = 10
     context_object_name = 'service'
     permission_required = 'service.add_service'
 
@@ -222,10 +129,10 @@ def apply_plantation(request, pk):
 
         if remaining_vacancies > 0:
             status_vacancie = 'CONFIRMADO'
-            mensagem = f"Parabéns! Você foi CONFIRMADO no plantão do DIA {service.date.strftime('%d/%m/%y')} de {service.time_start.strftime('%H:%M')} as {service.time_end.strftime('%H:%M')}."
+            mensagem = f"Parabéns! Você foi CONFIRMADO no plantão do DIA {service.date.strftime('%d/%m/%y')} de {service.time_start.strftime('%H:%M:%S')} as {service.time_end.strftime('%H:%M:%S')}."
         else:
             status_vacancie = 'RESERVA'
-            mensagem = f"As vagas estão esgotadas. Você entrou na lista de RESERVA para o plantão do DIA {service.date.strftime('%d/%m/%y')} de {service.time_start.strftime('%H:%M')} as {service.time_end.strftime('%H:%M')}."
+            mensagem = f"As vagas estão esgotadas. Você entrou na lista de RESERVA para o plantão do DIA {service.date.strftime('%d/%m/%y')} de {service.time_start.strftime('%H:%M:%S')} as {service.time_end.strftime('%H:%M:%S')}."
 
         try:
             # 3. Cria a inscrição no banco de dados
@@ -277,7 +184,7 @@ def cancel_registration_service(request, pk):
 
             messages.success(request, (
                 f"Sua inscrição para o RAS do dia {service.date.strftime('%d/%m/%y')} "
-                f"das {service.time_start.strftime('%H:%M')} às {service.time_end.strftime('%H:%M')} "
+                f"das {service.time_start.strftime('%H:%M:%S')} às {service.time_end.strftime('%H:%M:%S')} "
                 "foi cancelada com sucesso."
             ))
             return redirect('my_subscriptions')
@@ -285,12 +192,48 @@ def cancel_registration_service(request, pk):
     return render(request, 'agents/confirmation_cancellation.html', {'service': service})
 
 
-class MySubscriptionsListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
+@permission_required('service.change_registrationservice', login_url='login')
+def cancel_registration_by_manager(request, registration_pk):
+    registration = get_object_or_404(RegistrationService, pk=registration_pk)
+    service = registration.service
+    period_pk = service.period.pk
+
+    if request.method == 'POST':
+        with transaction.atomic():
+            previous_status = registration.status
+            if previous_status != 'CANCELADO':
+                registration.status = 'CANCELADO'
+                registration.save()
+
+                if previous_status == 'CONFIRMADO':
+                    next_reservation = RegistrationService.objects.filter(
+                        service=service,
+                        status='RESERVA'
+                    ).order_by('registration_date').first()
+
+                    if next_reservation:
+                        next_reservation.status = 'CONFIRMADO'
+                        next_reservation.save()
+
+                messages.success(request, (
+                    f"Inscrição de {registration.user.get_full_name() or registration.user.username} "
+                    f"no RAS de {service.date.strftime('%d/%m/%y')} "
+                    f"das {service.time_start.strftime('%H:%M:%S')} às {service.time_end.strftime('%H:%M:%S')} "
+                    "foi cancelada com sucesso."
+                ))
+            else:
+                messages.info(request, "A inscrição já estava cancelada.")
+
+        return redirect('period_detail', pk=period_pk)
+
+    return redirect('period_detail', pk=period_pk)
+
+
+class MySubscriptionsListView(LoginRequiredMixin, ListView):
     model = RegistrationService
     paginate_by = 10
     template_name = 'agents/my_subscriptions_list.html'
     context_object_name = 'registrations'
-    permission_required = 'service.view_registrationservice'
 
     def get_queryset(self):
         return RegistrationService.objects.filter(user=self.request.user).order_by('service__date')
@@ -355,3 +298,70 @@ def exportar_pdf(request):
     response = HttpResponse(pdf_file.read(), content_type='application/pdf')
     response['Content-Disposition'] = f'inline; filename="ras_{period.name}.pdf"'
     return response
+
+
+@permission_required('service.view_period', login_url='login')
+def relatorio_pdf_view(request):
+    if request.method == 'POST':
+        date_start_str = request.POST.get('date_start')
+        date_end_str = request.POST.get('date_end')
+        if not date_start_str or not date_end_str:
+            messages.error(request, "Selecione as datas de início e fim.")
+            return redirect('relatorio_pdf')
+
+        # Converter strings para objetos date
+        try:
+            date_start = datetime.strptime(date_start_str, '%Y-%m-%d').date()
+            date_end = datetime.strptime(date_end_str, '%Y-%m-%d').date()
+        except ValueError:
+            messages.error(request, "Datas inválidas.")
+            return redirect('relatorio_pdf')
+
+        # Filtrar períodos que se sobrepõem ao intervalo
+        periods = Period.objects.filter(
+            date_start__lte=date_end,
+            date_end__gte=date_start
+        ).prefetch_related(
+            Prefetch('plantoes', queryset=Service.objects.prefetch_related('registrations'))
+        ).order_by('date_start')
+
+        # Coletar dados
+        data = []
+        for period in periods:
+            period_data = {
+                'period': period,
+                'services': []
+            }
+            for service in period.plantoes.all():
+                service_data = {
+                    'service': service,
+                    'confirmados': service.registrations.filter(status='CONFIRMADO'),
+                    'reservas': service.registrations.filter(status='RESERVA'),
+                    'cancelados': service.registrations.filter(status='CANCELADO'),
+                }
+                period_data['services'].append(service_data)
+            data.append(period_data)
+
+        # Renderizar template para PDF
+        template = get_template('relatorio_pdf.html')
+        now = timezone.localtime().strftime('%d/%m/%Y %H:%M:%S')
+        logo_path = os.path.join(settings.BASE_DIR, 'static', 'img', 'Logo_GCM.png')
+        html_content = template.render({
+            'data': data,
+            'date_start': date_start,
+            'date_end': date_end,
+            'now': now,
+            'logo_path': logo_path,
+        })
+
+        # Gerar PDF
+        pdf_file = BytesIO()
+        HTML(string=html_content, base_url=request.build_absolute_uri()).write_pdf(pdf_file)
+        pdf_file.seek(0)
+
+        response = HttpResponse(pdf_file.read(), content_type='application/pdf')
+        response['Content-Disposition'] = f'inline; filename="relatorio_{date_start}_a_{date_end}.pdf"'
+        return response
+
+    # GET: mostrar formulário
+    return render(request, 'relatorio_form.html')

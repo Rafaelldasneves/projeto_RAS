@@ -1,0 +1,75 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="table-responsive">
+    <h1>Lista de Servidores Cadastrados</h1>
+    
+    <!-- Campo de busca -->
+    <form method="get" class="mb-3">
+        <div class="input-group">
+            <input type="text" name="q" value="{{ q }}" class="form-control" placeholder="Buscar por Nome de Guerra ou Matrícula">
+            <button class="btn btn-primary" type="submit">Buscar</button>
+        </div>
+    </form>
+    
+    <table class="table table-striped table-bordered">
+        <thead class="thead-dark">
+            <tr>
+                <th>
+                    <a href="?{% if order_by == 'position' and direction == 'asc' %}order_by=position&direction=desc{% else %}order_by=position&direction=asc{% endif %}{% if q %}&q={{ q }}{% endif %}">Cargo</a>
+                    {% if order_by == 'position' %}
+                        {% if direction == 'asc' %}↑{% else %}↓{% endif %}
+                    {% endif %}
+                </th>
+                <th>
+                    <a href="?{% if order_by == 'username' and direction == 'asc' %}order_by=username&direction=desc{% else %}order_by=username&direction=asc{% endif %}{% if q %}&q={{ q }}{% endif %}">Nome de Guerra</a>
+                    {% if order_by == 'username' %}
+                        {% if direction == 'asc' %}↑{% else %}↓{% endif %}
+                    {% endif %}
+                </th>
+                <th>
+                    <a href="?{% if order_by == 'registration' and direction == 'asc' %}order_by=registration&direction=desc{% else %}order_by=registration&direction=asc{% endif %}{% if q %}&q={{ q }}{% endif %}">Matrícula</a>
+                    {% if order_by == 'registration' %}
+                        {% if direction == 'asc' %}↑{% else %}↓{% endif %}
+                    {% endif %}
+                </th>
+                <th>
+                    <a href="?{% if order_by == 'admission_date' and direction == 'asc' %}order_by=admission_date&direction=desc{% else %}order_by=admission_date&direction=asc{% endif %}{% if q %}&q={{ q }}{% endif %}">Data de Admissão</a>
+                    {% if order_by == 'admission_date' %}
+                        {% if direction == 'asc' %}↑{% else %}↓{% endif %}
+                    {% endif %}
+                </th>
+                <th> Ações </th>
+            </tr>
+
+        </thead>
+
+        <tbody>
+            {% for servidor in servidores %}
+            <tr>
+                <td> {{ servidor.position }} </td>
+                <td> {{ servidor.username }} </td>                
+                <td> {{ servidor.registration }} </td>
+                <td> {{ servidor.admission_date }} </td>
+                <td> 
+                    <a href="{% url 'detail_servidor' servidor.id %}" class="btn btn-info btn-sm">
+                        <i class="bi bi-eye"></i>
+                    </a>
+                      <a href="{% url 'update_servidor' servidor.id %}" class="btn btn-warning btn-sm">
+                        <i class="bi bi-pencil"></i>
+                    </a>
+                      <a href="{% url 'delete_servidor' servidor.id %}" class="btn btn-danger btn-sm">
+                        <i class="bi bi-trash"></i>
+                    </a>
+                </td>
+            </tr>
+            {% endfor%}
+        </tbody>
+    </table>
+    
+    <!-- Paginação -->
+    {% include 'components/_pagination.html' %}
+</div>
+
+{%endblock%}

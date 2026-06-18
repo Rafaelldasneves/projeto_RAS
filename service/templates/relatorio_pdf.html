@@ -1,0 +1,336 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<title>Relatório Oficial</title>
+
+<style>
+
+/* ===================== CONFIGURAÇÃO DA PÁGINA ===================== */
+@page {
+    size: A4;
+    margin: 4.5cm 1.5cm 2cm 1.5cm;
+
+    @top-center {
+        content: element(header);
+    }
+
+    @bottom-center {
+        content: element(footer);
+    }
+}
+
+/* ===================== BASE ===================== */
+body {
+    font-family: "Times New Roman", serif;
+    font-size: 12px;
+    color: #1a1a1a;
+    line-height: 1.4;
+    margin: 0;
+    padding: 0;
+}
+
+/* ===================== HEADER ===================== */
+header {
+    position: running(header);
+    border-bottom: 2px solid #000;
+    padding-bottom: 3px;
+    margin-bottom: 10px;
+    text-align: center;
+}
+
+.logo-container {
+    margin-bottom: 10px;
+}
+
+.logo-container img {
+    width: 50px;
+    height: auto;
+}
+
+.company-title {
+    font-size: 16px;
+    font-weight: bold;
+    color: #000;
+    margin: 0;
+    letter-spacing: 1px;
+}
+
+.report-title {
+    font-size: 14px;
+    font-weight: normal;
+    color: #333;
+    margin: 1px 0;
+}
+
+.period-info {
+    font-size: 14px;
+    color: #666;
+    margin-top: 2px;
+    font-weight: normal;
+}
+
+/* ===================== FOOTER ===================== */
+footer {
+    position: running(footer);
+    font-size: 10px;
+    text-align: center;
+    border-top: 1px solid #666;
+    padding-top: 8px;
+    color: #666;
+}
+
+.page-number:before {
+    content: "Página " counter(page) " de " counter(pages);
+}
+
+/* ===================== SEÇÕES ===================== */
+.section {
+    margin-bottom: 15px;
+    page-break-inside: avoid;
+}
+
+.section-header {
+    background: linear-gradient(to right, #333, #666);
+    color: white;
+    padding: 8px 15px;
+    margin-bottom: 10px;
+    font-size: 16px;
+    font-weight: bold;
+    letter-spacing: 0.5px;
+    border-radius: 3px 3px 0 0;
+}
+
+.section-content {
+    border: 1px solid #999;
+    border-top: none;
+    padding: 5px;
+    background: #f8f8f8;
+}
+
+/* ===================== SUBSEÇÕES ===================== */
+.subsection {
+    margin-bottom: 10px;
+    page-break-inside: avoid;
+}
+
+.subsection-title {
+    font-size: 14px;
+    font-weight: bold;
+    color: #000;
+    margin-bottom: 8px;
+    padding-bottom: 3px;
+    border-bottom: 1px solid #666;
+}
+
+/* ===================== TABELAS ===================== */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 15px;
+    font-size: 14px;
+    background: white;
+    border: 1px solid #666;
+}
+
+th {
+    background: #e0e0e0;
+    color: #000;
+    font-weight: bold;
+    padding: 10px 8px;
+    text-align: left;
+    border: 1px solid #666;
+    font-size: 14px;
+}
+
+td {
+    padding: 8px;
+    border: 1px solid #999;
+    vertical-align: top;
+}
+
+/* Alternar cores das linhas */
+tbody tr:nth-child(even) {
+    background: #f0f0f0;
+}
+
+/* Colunas específicas */
+.col-nome {
+    width: 30%;
+    text-align: left;
+}
+
+.col-matricula {
+    width: 10%;
+    text-align: center;
+}
+
+.col-data {
+    width: 25%;
+    text-align: center;
+}
+.col-assinatura {
+    width: 35%;
+    text-align: center;
+}
+
+/* Status com tons de cinza */
+.status-confirmado { background: #ffffff9e; }
+.status-reserva { background: #ffffff9e; }
+.status-cancelado { background: #ffffff9e; }
+
+/* ===================== ELEMENTOS GERAIS ===================== */
+.empty-message {
+    text-align: center;
+    font-style: italic;
+    color: #666;
+    padding: 15px;
+    background: #e0e0e0;
+    border: 1px dashed #999;
+    margin: 10px 0;
+}
+
+.info-text {
+    font-size: 10px;
+    color: #333;
+    margin-bottom: 10px;
+    padding: 8px;
+    background: #f0f0f0;
+    border-left: 3px solid #666;
+}
+
+/* ===================== QUEBRA DE PÁGINA ===================== */
+.page-break {
+    page-break-before: always;
+}
+
+</style>
+</head>
+
+<body>
+
+<!-- FOOTER -->
+<footer>
+    <span class="page-number"></span> | Relatório gerado em {{ now }}
+</footer>
+
+<!-- HEADER -->
+<header>
+    <div class="logo-container">
+        <img src="file://{{ logo_path }}" alt="Logo Institucional">
+    </div>
+    <div class="company-title">SECRETARIA MUNICIPAL</div>
+    <div class="report-title">Relatório de Inscrições em Serviços</div>
+    <div class="period-info">Período: {{ date_start|date:"d/m/Y" }} a {{ date_end|date:"d/m/Y" }}</div>
+</header>
+
+<!-- CONTEÚDO PRINCIPAL -->
+{% for period_data in data %}
+<div class="section">
+
+    <div class="section-header">
+        {{ period_data.period.name }}
+    </div>
+
+    <div class="section-content">
+
+        <div class="info-text">
+            <strong>Período do Relatório:</strong> {{ period_data.period.date_start|date:"d/m/Y" }} a {{ period_data.period.date_end|date:"d/m/Y" }}<br>
+            <strong>Descrição:</strong> {{ period_data.period.description|default:"N/A" }}
+        </div>
+
+        {% for service_data in period_data.services %}
+        <div class="subsection">
+
+            <div class="subsection-title">
+                Serviço: {{ service_data.service.date|date:"d/m/Y" }} | {{ service_data.service.time_start|time:"H:i:s" }} - {{ service_data.service.time_end|time:"H:i:s" }} | Vagas: {{ service_data.service.vacancies }}
+            </div>
+
+            <!-- CONFIRMADOS -->
+            <div class="subsection-title">Inscrições Confirmadas</div>
+            <table>
+                <thead>
+                    <tr>
+                        <th class="col-nome">Nome de Guerra</th>
+                        <th class="col-matricula">Matrícula</th>
+                        <th class="col-data">Data da Inscrição</th>
+                        <th class="col-assinatura">Assinatura</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for reg in service_data.confirmados %}
+                    <tr class="status-confirmado">
+                        <td class="col-nome">{{ reg.user.username }}</td>
+                        <td class="col-matricula">{{ reg.user.registration|default:"N/A" }}</td>
+                        <td class="col-data">{{ reg.registration_date|date:"d/m/Y H:i:s" }}</td>
+                        <td class="col-assinatura"></td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="4" class="empty-message">Nenhuma inscrição confirmada</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+
+            <!-- RESERVAS -->
+            <div class="subsection-title">Lista de Reserva</div>
+            <table>
+                <thead>
+                    <tr>
+                        <th class="col-nome">Nome de Guerra</th>
+                        <th class="col-matricula">Matrícula</th>
+                        <th class="col-data">Data da Inscrição</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for reg in service_data.reservas %}
+                    <tr class="status-reserva">
+                        <td class="col-nome">{{ reg.user.username }}</td>
+                        <td class="col-matricula">{{ reg.user.registration|default:"N/A" }}</td>
+                        <td class="col-data">{{ reg.registration_date|date:"d/m/Y H:i:s" }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="3" class="empty-message">Nenhuma reserva</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+
+            <!-- CANCELADOS -->
+            <div class="subsection-title">Cancelamentos</div>
+            <table>
+                <thead>
+                    <tr>
+                        <th class="col-nome">Nome de Guerra</th>
+                        <th class="col-matricula">Matrícula</th>
+                        <th class="col-data">Data do Cancelamento</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for reg in service_data.cancelados %}
+                    <tr class="status-cancelado">
+                        <td class="col-nome">{{ reg.user.username }}</td>
+                        <td class="col-matricula">{{ reg.user.registration|default:"N/A" }}</td>
+                        <td class="col-data">{{ reg.updated_at|date:"d/m/Y H:i:s" }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="3" class="empty-message">Nenhum cancelamento</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+
+        </div>
+        {% endfor %}
+
+    </div>
+
+</div>
+{% endfor %}
+
+</body>
+</html>
