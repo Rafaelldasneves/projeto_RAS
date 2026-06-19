@@ -3,7 +3,7 @@
 {% block content %}
 <div class="container-fluid">
   {% if user.is_authenticated %}
-    <span class="text-center text-light" style="font-size: 25px; padding-left:0px;">Seja Bem-Vindo(a),
+    <span class="d-block text-center text-light fs-5 ps-0">Seja Bem-Vindo(a),
     <strong>{{user.get_full_name|default:user.position }} {{user.get_full_name|default:user.username }}  !</strong></span>
   {% endif %}
 </div>

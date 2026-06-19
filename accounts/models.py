@@ -16,6 +16,10 @@ class CustomUser(AbstractUser):
     admission_date = models.DateField ("Data de Admissão", blank=True, null=True)
     email = models.EmailField("E-mail", blank=True, null=True)
     phone_number = models.CharField ("Telefone", max_length=15, blank=True, null=True)
+    must_change_password = models.BooleanField(
+        default=False,
+        verbose_name='Obrigar troca de senha'
+    )
 
 
 User = get_user_model()
@@ -26,3 +30,4 @@ class LoggedInUser(models.Model):
 
     def __str__(self):
         return self.user.username
+    

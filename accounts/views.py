@@ -1,15 +1,15 @@
-from django.shortcuts import render
-from django.views.generic import CreateView, ListView, UpdateView, DetailView, DeleteView
+from django.shortcuts import render, redirect, get_object_or_404
+from django.views.generic import CreateView, ListView, UpdateView, DetailView, DeleteView, FormView
 from django.urls import reverse_lazy
-from django.contrib.auth.hashers import make_password
 from django.contrib import messages
-from . import models
-
+from django.contrib.auth.decorators import permission_required
+from django.contrib.auth.forms import SetPasswordForm
 from django.contrib.auth import get_user_model
+from django.contrib.auth import get_user_model, update_session_auth_hash
 from django.db.models import Q
+from .forms import RegisterForm, UpdateUserForm, TemporaryPasswordForm
+from . import models
 User = get_user_model()
-
-from accounts.forms import RegisterForm
 
 
 class RegisterUserView(CreateView):
@@ -25,6 +25,51 @@ class RegisterUserView(CreateView):
             form.instance.set_password(password)
         messages.success(self.request, self.success_message)
         return super().form_valid(form)
+
+
+@permission_required('accounts.change_customuser', login_url='login')
+def reset_temporary_password(request, pk):
+    user = get_object_or_404(User, pk=pk)
+
+    if request.method == 'POST':
+        form = TemporaryPasswordForm(request.POST)
+        if form.is_valid():
+            temporary_password = form.cleaned_data['temporary_password']
+            user.set_password(temporary_password)
+            user.must_change_password = True
+            user.save()
+            messages.success(request, f"Senha temporária criada para {user.username}. O usuário deverá alterá-la no próximo login.")
+            return redirect('detail_servidor', pk=user.pk)
+    else:
+        form = TemporaryPasswordForm()
+
+    return render(request, 'temporary_password_form.html', {'form': form, 'user': user})
+
+
+class ForcePasswordChangeView(FormView):
+    template_name = 'registration/force_password_change.html'
+    form_class = SetPasswordForm
+    success_url = reverse_lazy('home')
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['user'] = self.request.user
+        return kwargs
+
+    def form_valid(self, form):
+        user = form.save()
+        update_session_auth_hash(self.request, user)
+        user.must_change_password = False
+        user.save()
+        messages.success(self.request, "Senha alterada com sucesso!")
+        return super().form_valid(form)
+
+    def dispatch(self, request, *args, **kwargs):
+        if not request.user.is_authenticated:
+            return redirect('login')
+        if not request.user.must_change_password:
+            return redirect('home')
+        return super().dispatch(request, *args, **kwargs)
 
 
 class ListServidor(ListView):
@@ -67,8 +112,8 @@ class DetailServidor(DetailView):
 class UpdateServidor(UpdateView):
     model = models.CustomUser
     template_name= 'update_servidor.html'
-    form_class = RegisterForm
-    success_url = reverse_lazy ('list_servidor')
+    form_class = UpdateUserForm
+    success_url = reverse_lazy('list_servidor')
 
 
 class DeleteServidor(DeleteView):

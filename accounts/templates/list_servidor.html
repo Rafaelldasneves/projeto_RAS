@@ -16,6 +16,7 @@
     <table class="table table-striped table-bordered">
         <thead class="thead-dark">
             <tr>
+                <th></th>
                 <th>
                     <a href="?{% if order_by == 'position' and direction == 'asc' %}order_by=position&direction=desc{% else %}order_by=position&direction=asc{% endif %}{% if q %}&q={{ q }}{% endif %}">Cargo</a>
                     {% if order_by == 'position' %}
@@ -48,6 +49,7 @@
         <tbody>
             {% for servidor in servidores %}
             <tr>
+                <td>{{ forloop.counter }}</td>
                 <td> {{ servidor.position }} </td>
                 <td> {{ servidor.username }} </td>                
                 <td> {{ servidor.registration }} </td>
@@ -62,6 +64,11 @@
                       <a href="{% url 'delete_servidor' servidor.id %}" class="btn btn-danger btn-sm">
                         <i class="bi bi-trash"></i>
                     </a>
+                    {% if perms.accounts.change_customuser %}
+                        <a href="{% url 'reset_temporary_password' servidor.id %}" class="btn btn-secondary btn-sm mt-1">
+                            <i class="bi bi-key-fill"></i>
+                        </a>
+                    {% endif %}
                 </td>
             </tr>
             {% endfor%}
