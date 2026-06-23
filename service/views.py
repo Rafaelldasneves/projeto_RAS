@@ -13,6 +13,7 @@ from weasyprint import HTML
 from .models import Service, RegistrationService
 from django.urls import reverse_lazy
 from period.models import Period
+from collections import OrderedDict
 from datetime import datetime
 import os
 from django.conf import settings
@@ -233,10 +234,17 @@ class MySubscriptionsListView(LoginRequiredMixin, ListView):
     model = RegistrationService
     paginate_by = 10
     template_name = 'agents/my_subscriptions_list.html'
-    context_object_name = 'registrations'
+    context_object_name = 'grouped_registrations'
 
     def get_queryset(self):
-        return RegistrationService.objects.filter(user=self.request.user).order_by('service__date')
+        registrations = RegistrationService.objects.filter(user=self.request.user).order_by('service__date')
+
+        grouped_registrations = OrderedDict()
+        for registration in registrations:
+            month = registration.service.date.replace(day=1)
+            grouped_registrations.setdefault(month, []).append(registration)
+
+        return list(grouped_registrations.items())
 
 @login_required
 def exportar_pdf(request):

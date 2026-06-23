@@ -18,8 +18,6 @@ class HomeView(LoginRequiredMixin, ListView):
             plantoes__date__gte=now.date()
         ).filter(
             Q(available_from__lte=now) | Q(available_from__isnull=True)
-        ).filter(
-            Q(available_until__gte=now) | Q(available_until__isnull=True)
         ).prefetch_related('plantoes__registrations__user').order_by('-date_start').distinct()
 
     def get_context_data(self, **kwargs):
