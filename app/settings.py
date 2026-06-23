@@ -19,6 +19,7 @@ ALLOWED_HOSTS = ['*']
 # Application definition
 
 INSTALLED_APPS = [
+    'jazzmin',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -71,16 +72,7 @@ LOGOUT_REDIRECT_URL = '/login/'
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
-DATABASES = {
-    # 'default': {
-    #     'ENGINE': 'django.db.backends.postgresql_psycopg2',
-    #     'NAME': 'sgras',
-    #     'USER': 'postgres',
-    #     'PASSWORD': 'postgres',
-    #     'HOST': 'sgras_db',
-    #     'PORT': '5432',
-    # },
-    
+DATABASES = {  
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': BASE_DIR / 'db.sqlite3',
@@ -138,3 +130,63 @@ MEDIA_ROOT = BASE_DIR / "media"
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+
+JAZZMIN_SETTINGS = {
+
+    "site_title": "RAS Admin",
+
+    "site_header": "Sistema RAS",
+
+    "site_brand": "Guarda Municipal",
+
+    "site_logo": "img/Logo_GCM.png",
+
+    "site_icon": "img/favicon01.ico",
+
+    "welcome_sign": "Sistema de Gestão de RAS",
+
+    "copyright": "Prefeitura Municipal",
+
+    "show_sidebar": True,
+
+    "navigation_expanded": True,
+
+    "show_ui_builder": True,
+
+    "changeform_format": "horizontal_tabs",
+
+    "search_model": [
+        "accounts.CustomUser",
+        "period.Period",
+        "service.Service",
+    ],
+
+    "order_with_respect_to": [
+        "accounts",
+        "period",
+        "service",
+    ],
+
+    "icons": {
+        "accounts": "fas fa-users",
+        "accounts.customuser": "fas fa-user-shield",
+
+        "period": "fas fa-calendar-alt",
+        "period.period": "fas fa-calendar-alt",
+
+        "service": "fas fa-clipboard-list",
+        "service.service": "fas fa-business-time",
+        "service.registrationservice": "fas fa-user-check",
+    },
+
+    "default_icon_parents": "fas fa-folder",
+    "default_icon_children": "fas fa-circle",
+
+    "topmenu_links": [
+        {
+            "name": "Início",
+            "url": "admin:index",
+        },
+    ],
+}

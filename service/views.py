@@ -130,6 +130,7 @@ def apply_plantation(request, pk):
         if remaining_vacancies > 0:
             status_vacancie = 'CONFIRMADO'
             mensagem = f"Parabéns! Você foi CONFIRMADO no plantão do DIA {service.date.strftime('%d/%m/%y')} de {service.time_start.strftime('%H:%M:%S')} as {service.time_end.strftime('%H:%M:%S')}."
+           
         else:
             status_vacancie = 'RESERVA'
             mensagem = f"As vagas estão esgotadas. Você entrou na lista de RESERVA para o plantão do DIA {service.date.strftime('%d/%m/%y')} de {service.time_start.strftime('%H:%M:%S')} as {service.time_end.strftime('%H:%M:%S')}."
@@ -143,7 +144,6 @@ def apply_plantation(request, pk):
             )
             messages.success(request, mensagem)
         except IntegrityError:
-            # Caso raro de race condition ou falha na checagem inicial
             messages.error(request, "Ocorreu um erro. Tente novamente.")
 
         return redirect('my_subscriptions')

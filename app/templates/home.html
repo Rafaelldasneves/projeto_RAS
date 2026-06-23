@@ -3,13 +3,13 @@
 {% block content %}
 <div class="container-fluid">
   {% if user.is_authenticated %}
-    <span class="d-block text-center text-light fs-5 ps-0">Seja Bem-Vindo(a),
-    <strong>{{user.get_full_name|default:user.position }} {{user.get_full_name|default:user.username }}  !</strong></span>
+    <span class="d-block text-left text-light fs-4 ms-5">Seja Bem-Vindo(a),
+    <strong>{{user.get_full_name|default:user.position }} {{user.get_full_name|default:user.username|upper }}.</strong></span>
   {% endif %}
 </div>
 
 <div class="container mt-4">
-  <h2 class="mb-4"> <strong> RAS DISPONÍVEIS PARA CONSULTA E MARCAÇÃO:</strong> </h2>
+  <h2 class="mb-4"> <strong> EXTRATO DE MARCAÇÃO:</strong> </h2>
 
   {% if grouped_services %}
     <div class="accordion" id="accordionPeriods">

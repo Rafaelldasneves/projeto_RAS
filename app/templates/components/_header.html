@@ -17,8 +17,8 @@
     </div>
 
     {% if user.is_authenticated %}
-      <nav class="navbar navbar-expand-md navbar-dark bg-dark rounded-3 mt-3">
-        <div class="container-fluid px-0">
+      <nav class="navbar navbar-expand-md navbar-dark bg-dark rounded-4 mt-2">
+        <div class="container-fluid px-3">
           <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarRAS"
                   aria-controls="navbarRAS" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
@@ -27,15 +27,27 @@
           <div class="collapse navbar-collapse" id="navbarRAS">
             <ul class="navbar-nav me-auto mb-2 mb-md-0">
               <li class="nav-item">
-                <a class="nav-link btn btn-dark mx-1 my-1" href="{% url 'home' %}">Início</a>
+                <a class="nav-link btn btn-dark mx-1 my-1" href="{% url 'home' %}">Extrato</a>
               </li>
               <li class="nav-item">
                 <a class="nav-link btn btn-dark mx-1 my-1" href="{% url 'service_list' %}">Marcação</a>
               </li>
               <li class="nav-item">
                 <a class="nav-link btn btn-dark mx-1 my-1" href="{% url 'my_subscriptions' %}">Minhas Marcações</a>
-              </li>
-
+              <li class="nav-item dropdown">
+                  <a class="nav-link dropdown-toggle btn btn-dark mx-1 my-1" href="#" id="leisDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    Leis e Normas
+                  </a>
+                  <ul class="dropdown-menu" aria-labelledby="leisDropdown">
+                    <li><a class="dropdown-item" href="{% static 'pdf/modelo1.pdf' %}" target="_blank">NORMATIVA SMSP 01/2024</a>
+                    </li>
+                    <li><a class="dropdown-item" href="{% static 'pdf/Lei 2338_23.pdf' %}" target="_blank">LEI 2338/23 (RAS)</a>
+                    </li>
+                    <li><a class="dropdown-item" href="{% static 'pdf/Decreto 3895_25.pdf' %}" target="_blank">DECRETO 3895/25</a>
+                    </li> 
+                  </ul>
+                </li>
+                                                      
               {% if perms.service.add_period and perms.service.add_service and perms.service.view_period %}
                 <li class="nav-item dropdown">
                   <a class="nav-link dropdown-toggle btn btn-dark mx-1 my-1" href="#" id="gestorDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
@@ -57,7 +69,7 @@
                 </li>
               {% endif %}
             </ul>
-
+            
             <form action="{% url 'logout' %}" method="post" class="d-flex">
               {% csrf_token %}
               <button type="submit" class="btn btn-dark my-1">Sair</button>

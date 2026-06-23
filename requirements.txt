@@ -1,8 +1,10 @@
+asarPy==1.0.1
 asgiref==3.10.0
 brotli==1.2.0
 cffi==2.0.0
 cssselect2==0.8.0
 Django==5.2.7
+django-jazzmin==3.0.4
 flake8==7.3.0
 fonttools==4.60.1
 mccabe==0.7.0

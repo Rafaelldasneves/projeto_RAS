@@ -66,9 +66,9 @@
                                                             {% elif service.date|date:"Ymd" < "now"|date:"Ymd" %}
                                                                 <button class="btn btn-outline-info btn-sm" disabled>Plantão Expirado</button>
                                                             {% else %}
-                                                                <form method="post" action="{% url 'apply_plantation' service.pk %}" style="display:inline;">
+                                                                <form method="post" action="{% url 'apply_plantation' service.pk %}" class="apply-form" style="display:inline;">
                                                                     {% csrf_token %}
-                                                                    <button type="submit" class="btn btn-primary btn-sm">
+                                                                    <button type="button" class="btn btn-primary btn-sm btn-apply-confirm" data-bs-toggle="modal" data-bs-target="#confirmApplyModal">
                                                                         Candidatar-se
                                                                     </button>
                                                                 </form>
@@ -94,6 +94,47 @@
     </div>
 </div>
 <br>
+
+<!-- Modal de confirmação de candidatura -->
+<div class="modal fade" id="confirmApplyModal" tabindex="-1" aria-labelledby="confirmApplyModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="confirmApplyModalLabel">Confirmar candidatura</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+            </div>
+            <div class="modal-body">
+                <p>Estou ciente do disposto nos Artigos 3° e 4° e das sanções cabíveis em caso de descumprimento da <a href="{% static 'pdf/modelo.pdf' %}" target="_blank">NORMATIVA SMSP 001/2024 DE 1° DE FEVEREIRO DE 2024.</a> </p>
+                <p class="small text-muted">Ao confirmar, sua inscrição será registrada e você receberá status de confirmado ou reserva conforme disponibilidade.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Desistir</button>
+                <button type="button" id="confirmApplyButton" class="btn btn-primary">Confirmar candidatura</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        var activeApplyForm = null;
+        document.querySelectorAll('.apply-form .btn-apply-confirm').forEach(function (button) {
+            button.addEventListener('click', function () {
+                activeApplyForm = button.closest('form');
+            });
+        });
+
+        var confirmApplyButton = document.getElementById('confirmApplyButton');
+        if (confirmApplyButton) {
+            confirmApplyButton.addEventListener('click', function () {
+                if (activeApplyForm) {
+                    activeApplyForm.submit();
+                }
+            });
+        }
+    });
+</script>
+
 {% include 'components/_pagination.html' %}
 
 {% endblock %}
