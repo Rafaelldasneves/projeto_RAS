@@ -9,6 +9,7 @@ from io import BytesIO
 from django.utils import timezone
 from django.http import HttpResponse
 from django.template.loader import get_template
+from django.core.mail import EmailMessage
 from weasyprint import HTML
 from .models import Service, RegistrationService
 from django.urls import reverse_lazy
@@ -19,6 +20,32 @@ import os
 from django.conf import settings
 
 
+def notify_reservation_promoted_to_confirmed(request, registration):
+    user = registration.user
+    service = registration.service
+    # Envia e-mail de notificação    
+    subject = "Sua reserva foi promovida para titular"
+    message = (
+        f"Olá {user.position.upper()}  {user.username.upper()},\n\n"
+        "Uma vaga titular ficou disponível e sua inscrição no plantão foi promovida de RESERVA para TITULAR.\n\n"
+        f"Plantão: {service.period.name} - {service.date.strftime('%d/%m/%Y')} "
+        f"das {service.time_start.strftime('%H:%M:%S')} às {service.time_end.strftime('%H:%M:%S')}\n\n"
+        "Acesse o sistema para ver os detalhes, Caso tenha dúvidas, entre em contato .\n\n"
+        "Atenciosamente,\nSubcomandante da Guarda Civil Municipal"
+    )
+
+    email = EmailMessage(
+        subject=subject,
+        body=message,
+        from_email=settings.EMAIL_HOST_USER,
+        to=[user.email],
+        bcc=['fabiianadesouza@gmail.com'],
+    )
+
+    # Enviando o e-mail
+    email.send(fail_silently=False)
+   
+   
 class ServiceCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
     model = Service
     template_name = 'service_form.html'
@@ -181,7 +208,8 @@ def cancel_registration_service(request, pk):
                 if next_reservation:
                     next_reservation.status = 'CONFIRMADO'
                     next_reservation.save()
-                    # Opcional: enviar notificação aqui
+
+                    notify_reservation_promoted_to_confirmed(request, next_reservation)
 
             messages.success(request, (
                 f"Sua inscrição para o RAS do dia {service.date.strftime('%d/%m/%y')} "
@@ -215,6 +243,7 @@ def cancel_registration_by_manager(request, registration_pk):
                     if next_reservation:
                         next_reservation.status = 'CONFIRMADO'
                         next_reservation.save()
+                        notify_reservation_promoted_to_confirmed(request, next_reservation)
 
                 messages.success(request, (
                     f"Inscrição de {registration.user.get_full_name() or registration.user.username} "
@@ -430,3 +459,4 @@ def assinaturas_pdf(request):
     response = HttpResponse(pdf_file.read(), content_type='application/pdf')
     response['Content-Disposition'] = f'inline; filename="ras_{period.name}.pdf"'
     return response
+
