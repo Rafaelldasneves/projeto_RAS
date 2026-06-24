@@ -1,6 +1,6 @@
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from django.contrib.auth.decorators import permission_required, login_required
-from django.views.generic import ListView, DetailView, UpdateView, DeleteView, CreateView
+from django.views.generic import ListView, DetailView, CreateView
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.db import transaction, IntegrityError
@@ -459,4 +459,3 @@ def assinaturas_pdf(request):
     response = HttpResponse(pdf_file.read(), content_type='application/pdf')
     response['Content-Disposition'] = f'inline; filename="ras_{period.name}.pdf"'
     return response
-

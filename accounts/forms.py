@@ -6,26 +6,24 @@ User = get_user_model()
 
 
 class RegisterForm(forms.ModelForm):
-    password = forms.CharField( 
-        label="Senha", 
-        max_length=15, 
+    password = forms.CharField(
+        label="Senha",
+        max_length=15,
         widget=forms.PasswordInput()
     )
 
     confirm_password = forms.CharField(
-        label="Confirme a Senha", 
+        label="Confirme a Senha",
         widget=forms.PasswordInput()
     )
 
     class Meta:
         model = CustomUser
         fields = ('position', 'username', 'registration', 'name', 'admission_date', 'email', 'phone_number', 'password', 'confirm_password',)
-        
+        widgets = {'admission_date': forms.DateInput(attrs={'type': 'date', }),
+                   'position': forms.Select(attrs={'class': 'form-control'}),
+                   }
 
-        widgets = {'admission_date': forms.DateInput (attrs= {'type':'date',}),
-                    'position': forms.Select(attrs={'class': 'form-control'}),
-        }
-    
     def clean(self):
         cleaned_data = super().clean()
         password = cleaned_data.get("password")

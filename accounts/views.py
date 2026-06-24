@@ -81,13 +81,11 @@ class ListServidor(ListView):
     def get_queryset(self):
         queryset = super().get_queryset()
         q = self.request.GET.get('q')
-        order_by = self.request.GET.get('order_by', 'username')
-        
+        order_by = self.request.GET.get('order_by', 'username')   
         if q:
             queryset = queryset.filter(
                 Q(username__icontains=q) | Q(registration__icontains=q)
-            )
-        
+            )        
         # Para alternar asc/desc
         direction = self.request.GET.get('direction', 'asc')
         if direction == 'desc':

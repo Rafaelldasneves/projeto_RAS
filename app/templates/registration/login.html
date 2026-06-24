@@ -2,43 +2,6 @@
 
 {% load static %}
 
-{% block extra_head %} 
-        <style>
-            .login-card {
-                max-width: 900px;
-                width: 100%;
-                margin: auto;
-                margin-top: 30px;
-            }
-            .login-card .login-card-body {
-                padding: 20px;
-            }
-            .login-card .login-card-image {
-                padding: 20px;
-                border-right: 1px solid rgba(255, 255, 255, 0.15);
-            }
-            .login-card-image-img {
-                background-color: rgba(255, 255, 255, 0.070);
-                border-radius: 10%;
-                max-height: 250px;
-                width: auto;
-            }
-            @media (max-width: 767px) {
-                .login-card .login-card-image {
-                    border-right: none;
-                    border-bottom: 1px solid rgb(255, 255, 255);
-                }
-                .login-card-image-img {
-                    max-height: 180px;
-                }
-                .login-card .login-card-body {
-                    padding: 1rem;
-                    
-                }
-            }
-        </style>
-{% endblock %}
-
 {% block title %} Login {% endblock %}
 
 {% block content %}

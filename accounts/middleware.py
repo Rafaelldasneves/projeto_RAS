@@ -49,24 +49,18 @@ class ForcePasswordChangeMiddleware:
         if request.user.is_authenticated:
             # Recarregar o usuário do banco de dados para obter valores atualizados
             request.user = User.objects.get(pk=request.user.pk)
-            
             # Verificar se o usuário deve obrigatoriamente alterar a senha
             if request.user.must_change_password:
                 path = request.path_info
-                
                 # URLs estáticas e admin são sempre permitidas
                 if (
-                    path.startswith(settings.STATIC_URL)
-                    or path.startswith(getattr(settings, 'MEDIA_URL', '/media/'))
-                    or path.startswith('/admin/')
-                ):
-                    return self.get_response(request)
-                
+                    path.startswith(settings.STATIC_URL) or path.startswith(getattr(settings, 'MEDIA_URL', '/media/')) or path.startswith('/admin/')
+                    ):
+                    return self.get_response(request)                
                 # Tentar resolver a view para o path atual
                 try:
                     match = resolve(path)
-                    view_name = match.url_name
-                    
+                    view_name = match.url_name                    
                     # Se a view não está na lista de permitidas, redirecionar
                     if view_name not in self.allowed_view_names:
                         return redirect('force_password_change')
